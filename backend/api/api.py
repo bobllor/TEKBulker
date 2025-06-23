@@ -23,7 +23,11 @@ class API:
 
         parser: Parser = Parser(b64_string)
         
-        # TODO: generate the azure csv.
+        default_headers: dict[str, str] = self.mapping.get_default_data(map_type='headers')
+        default_opco: dict[str, str] = self.mapping.get_default_data(map_type='opco')
+
+        parser.validate_df(default_headers=default_headers, default_opco=default_opco)
+        print(parser.get_names(col_name=default_headers['name']))
 
         return generate_response(status='success', message='')
 

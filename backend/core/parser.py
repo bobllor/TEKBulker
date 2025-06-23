@@ -20,30 +20,39 @@ class Parser:
         # that can appear in a file, maybe.
         self.df: pd.DataFrame = pd.read_excel(in_mem_bytes)
 
-        # no dash replacement for spaces, i'll make it user specific.
+        # lower all column names.
         self.df.rename(mapper=lambda x: x.lower(), axis=1, inplace=True)
 
-    def generate_csv(self, *, column_map: dict[str, str], opco_map: dict[str, str]) -> None:
+    def generate_csv(self, *, 
+        names: list[str], 
+        usernames: list[str],
+        passwords: list[str],) -> None:
         '''Generates the csv file for bulk account creation in Azure.
         
         Parameters
         ----------
-            column_map: dict[str, str]
-                Dictionary that maps internal variable names to user-defined names. The keys
-                are the internal names, the values are user-defined names.
+            names: list[str]
+                List of strings that represents the client names.
 
-            opco_map: dict[str, str]
-                Dictionary that maps operating company names to the domain names.
+            usernames: list[str]
+                List of strings that represents the usernames for each client. The values
+                are obtained from the function generate_username.
+            
+            passwords: list[str]
+                List of strings that represents the passwords for each client. The values
+                are obtained from the function generate_password.
         '''
-        pass
+        csv_data: dict[str, str] = {}
 
-    def validate_df(self, *, column_map: dict[str, str], default_opco: str = 'staffing',
+        new_df: pd.DataFrame = pd.DataFrame(csv_data)
+
+    def validate_df(self, *, default_headers: dict[str, str], default_opco: str = 'staffing',
         default_country: str = 'United States') -> dict[str, str]:
         '''Validate the DataFrame.
         
         Parameters
         ----------
-            column_map: dict[str, str]
+            default_headers: dict[str, str]
                 Dictionary that maps internal variable names to user-defined names. The keys
                 are the internal names, the values are user-defined names. Used to validate
                 column headers.
@@ -54,15 +63,15 @@ class Parser:
             default_country: str, default "United States"
                 The default country to fall back on if the column contains empty values.
         '''
-        res: dict[str, str] = self._check_df_columns(column_map)
+        res: dict[str, str] = self._check_df_columns(default_headers)
 
         if res.get('status', 'error') == 'error':
             return res
         
         # used for column names (user defined)
-        full_name: str = column_map.get('name')
-        country: str = column_map.get('country')
-        opco: str = column_map.get('opco')
+        full_name: str = default_headers.get('name')
+        country: str = default_headers.get('country')
+        opco: str = default_headers.get('opco')
 
         self.df[full_name] = self.df[full_name].apply(func=util.validate_name)
 
@@ -75,6 +84,17 @@ class Parser:
         self.df.drop(index=bad_rows, axis=0, inplace=True)
 
         return res
+    
+    def get_names(self, *, col_name: str) -> list[str]:
+        '''Get a list of names from the DataFrame.
+        
+        Parameters
+        ----------
+            col_name: str
+                The column name of the DataFrame that represents the names column.
+        '''
+        # the names are validated and corrected in validate_df.
+        return self.df[col_name].to_list()
     
     def _find_bad_names(self, names: list[str]) -> list[int]:
         '''Returns a list of integers indicating what row number a bad name value is found.'''

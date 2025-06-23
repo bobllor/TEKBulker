@@ -8,7 +8,9 @@ from support.vars import DEFAULT_HEADER_MAP, DEFAULT_OPCO_MAP, DEFAULT_SETTINGS_
 
 class Database:
     def __init__(self, db_str: str):
-        self.con: sqlite3.Connection = sqlite3.connect(db_str)
+        '''Mapping columns: category, key, value
+        Settings columns: category, setting, value'''
+        self.con: sqlite3.Connection = sqlite3.connect(db_str, check_same_thread=False)
 
         mapping_columns = ['category TEXT', 'key TEXT PRIMARY KEY', 'value TEXT']
 
