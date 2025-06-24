@@ -8,7 +8,8 @@ AZURE_HEADERS: tuple[str] = (
     'User name [userPrincipalName] Required',
     'Initial password [passwordProfile] Required',
     'Block sign in (Yes/No) [accountEnabled] Required',
-    'First name [givenName]', 'Last name [surname]',
+    'First name [givenName]', 
+    'Last name [surname]',
     'Usage location [usageLocation]'
 )
 
@@ -20,7 +21,7 @@ DEFAULT_HEADER_MAP: dict[str, str] = {
 
 # no @ is used here because it is added in to the username generator
 DEFAULT_OPCO_MAP: dict[str, str] = {
-    'default': 'ErrorDefaultNotEntered.com',
+    'default': 'placeholder.com',
 }
 
 DEFAULT_SETTINGS_MAP: dict[str, str] = {

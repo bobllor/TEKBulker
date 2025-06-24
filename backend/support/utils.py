@@ -1,4 +1,4 @@
-import string, re, random
+import string, re
 from typing import Literal, Any, Callable
 
 def validate_name(name: str) -> str:
@@ -91,9 +91,17 @@ def generate_username(
         username: str = func(username)
     
     # default is user defined
-    default_opco: str = opco_map.get('default', 'ERROR@DEFAULTNOTDETECTED.COM')
+    default_opco: str = opco_map.get('default', 'NOTFOUND.COM')
     
     return f'{username}@{opco_map.get(opco, default_opco)}'
+
+def get_date(date_format: str = '%Y-%m-%d-%H%M%S') -> str:
+    '''Get the date, by default it returns the format YY-MM-DD-HHMMSS'''
+    from datetime import datetime
+
+    date: str = datetime.today().strftime(date_format)
+
+    return date
 
 def generate_name(name: str) -> tuple[str]:
     '''Generate the names for the user.'''
@@ -101,5 +109,30 @@ def generate_name(name: str) -> tuple[str]:
 
     return f_name, l_name
 
-def generate_password() -> str:
-    return
+def generate_password(max_length: int = 20) -> str:
+    '''Random password generation.'''
+    # FIXME: add a profanity checker?
+    import random, string
+
+    pw: list[str] = []
+
+    upper: string = string.ascii_uppercase
+    lower: string = string.ascii_lowercase
+
+    # ' - % $ are not allowed
+    punctuations: string = ''.join([c for c in string.punctuation if c not in '-%\'$'])
+
+    valid_chars: string = upper + lower + punctuations
+
+    # need at least one upper, lower, and special
+    for seq in [upper, lower, punctuations]:
+        pw.append(random.choice(seq))
+
+    new_length: int = max_length - 3
+
+    for _ in range(new_length):
+        pw.append(random.choice(valid_chars))
+    
+    random.shuffle(pw)
+    
+    return "".join(pw)
