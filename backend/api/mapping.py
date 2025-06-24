@@ -17,7 +17,7 @@ class Mapping:
     def modify_data(self, data: Any) -> dict[str, str]:
         '''Modifies data of a given key in the map.'''
     
-    def get_table_data(self, category: str) -> dict[str, str]:
+    def get_table_data(self, category: Literal['headers', 'opco']) -> dict[str, str]:
         '''Returns a given mapping in a form of a dictionary.'''
         res: list[Any] = self._get_data(where=f'category="{category}"')
         
@@ -41,7 +41,7 @@ class Mapping:
     def _get_data(self, *, where: str ='') -> list[Any]:
         '''Retrieves the given data from the database.
         
-        It returns the columns key and value of the table.
+        It always returns a list of tuples containing the columns key and value of the table.
         '''
         res: list[Any] = self.db.select(table=self._table, 
             columns=self._columns, where=where)
