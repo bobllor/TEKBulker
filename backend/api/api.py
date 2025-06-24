@@ -27,7 +27,15 @@ class API:
         default_opco: dict[str, str] = self.mapping.get_default_data(map_type='opco')
 
         parser.validate_df(default_headers=default_headers, default_opco=default_opco)
-        print(parser.get_names(col_name=default_headers['name']))
+
+        # woah.
+        names: list[str] = parser.get_names(col_name=default_headers['name'])
+        usernames: list[str] = parser.get_usernames(names=names, opco_map=self.mapping.get_table_data('opco'))
+        passwords: list[str] = parser.get_passwords()
+        countries: list[str] = parser.df[default_headers.get('country')].to_list()
+
+        parser.generate_csv(names=names, usernames=usernames, passwords=passwords,
+            file_path=self.get_output_dir(), countries=countries)
 
         return generate_response(status='success', message='')
 
