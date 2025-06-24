@@ -26,7 +26,10 @@ class Parser:
     def generate_csv(self, *, 
         names: list[str], 
         usernames: list[str],
-        passwords: list[str],) -> None:
+        passwords: list[str],
+        file_path: str,
+        block_sign_in: list[str] = [],
+        countries: list[str] = []) -> None:
         '''Generates the csv file for bulk account creation in Azure.
         
         Parameters
@@ -41,10 +44,56 @@ class Parser:
             passwords: list[str]
                 List of strings that represents the passwords for each client. The values
                 are obtained from the function generate_password.
+            
+            file_path: str
+                The string path to the output directory for the CSV file.
+            
+            block_sign_in: list[str], default []
+                A list of strings that are either "Yes" or "No", by default it is an empty list.
+                If an empty list is passed, not enough values are given, or the values length is less than names length, 
+                then every remaining entry will be defaulted to "No".
+                
+                The list length is equal to the names length.
+            
+            countries: list[str], default []
+                A list of strings that contains the country/location usage of the user.
         '''
+        for _ in range(len(names) - len(block_sign_in)):
+            # not needed but won't hurt to have defense...?
+            block_sign_in.append('No')
+
+        first_names: list[str] = []
+        last_names: list[str] = []
+
+        for name in names:
+            f_name, l_name = util.generate_name(name)
+
+            first_names.append(f_name)
+            last_names.append(l_name)        
+
+        # 7 keys (in order): 
+        # name, username, password, block sign in (default no), 
+        # first name, last name, location (default US)
+        csv_values: list[list[str]] = [
+            names, usernames, passwords, block_sign_in,
+            first_names, last_names, countries
+        ]
+
+        # csv_values and AZURE_HEADERS are the same order. 
+        # if you change one, then you must change the order of the other.
         csv_data: dict[str, str] = {}
+        for i in range(len(AZURE_HEADERS)):
+            csv_data[AZURE_HEADERS[i]] = csv_values[i]
 
         new_df: pd.DataFrame = pd.DataFrame(csv_data)
+        
+        file_name: str = f'{util.get_date()}-azure-bulk'
+        full_path: str = file_path + f'/{file_name}'
+
+        with open(full_path, 'w') as f:
+            f.write(AZURE_VERSION + '\n')
+
+        new_df.to_csv(full_path, mode='a', index=False)
 
     def validate_df(self, *, default_headers: dict[str, str], default_opco: str = 'staffing',
         default_country: str = 'United States') -> dict[str, str]:
@@ -95,6 +144,28 @@ class Parser:
         '''
         # the names are validated and corrected in validate_df.
         return self.df[col_name].to_list()
+
+    def get_usernames(self, *, names: list[str], opco_map: dict[str, str]) -> list[str]:
+        '''Get a list of usernames from a list of names.'''
+        usernames: list[str] = []
+
+        for name in names:
+            username: str = util.generate_username(
+                name, func=lambda x: x.replace(' ', '.').strip(), opco_map=opco_map
+            )
+
+            usernames.append(username)
+
+        return usernames
+    
+    def get_passwords(self, *, max_length: int = 20) -> list[str]:
+        '''Generates random passwords for each user in the row.'''
+        passwords: list[str] = []
+
+        for _ in range(len(self.df)):
+            passwords.append(util.generate_password(max_length))
+
+        return passwords
     
     def _find_bad_names(self, names: list[str]) -> list[int]:
         '''Returns a list of integers indicating what row number a bad name value is found.'''
