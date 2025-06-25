@@ -183,6 +183,5 @@ def generate_text(*, text: str, key_words: list[str] = [], words_to_replace: lis
             break
     
         text = text.replace(f'[{key_words[i]}]', words_to_replace[i])
-    print(text)
     
     return generate_response(status='success', message='Successfully replaced the words in the text.')
