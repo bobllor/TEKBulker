@@ -11,19 +11,17 @@ class Mapping:
 
         self._categories: dict[str, str] = {
             'headers': 'headers',
-            'opco': 'opco'
+            'opco': 'opco',
+            'template': 'template'
         }
     
-    def modify_data(self, data: Any) -> dict[str, str]:
-        '''Modifies data of a given key in the map.'''
-    
-    def get_table_data(self, category: Literal['headers', 'opco']) -> dict[str, str]:
+    def get_table_data(self, category: Literal['headers', 'opco', 'template']) -> dict[str, str]:
         '''Returns a given mapping in a form of a dictionary.'''
         res: list[Any] = self._get_data(where=f'category="{category}"')
         
         return {key: value for key, value in res}
     
-    def get_default_data(self, *, map_type: Literal['headers', 'opco']) -> dict[str, str]:
+    def get_default_data(self, *, map_type: Literal['headers', 'opco', 'template']) -> dict[str, str]:
         '''Returns the default values of the mapping data.'''
         default_data: dict[str, str] = DEFAULT_HEADER_MAP if map_type == 'headers' else DEFAULT_OPCO_MAP
 
@@ -37,6 +35,10 @@ class Mapping:
             data[column_key] = column_value
         
         return data
+    
+    def update_data(self, *, set_sql: str, where: str) -> dict[str, str]:
+        '''Modifies data of a given key in the map.'''
+        self.db.update(table=self._table, set_=set_sql, where=where)
     
     def _get_data(self, *, where: str ='') -> list[Any]:
         '''Retrieves the given data from the database.

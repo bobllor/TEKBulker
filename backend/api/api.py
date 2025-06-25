@@ -39,18 +39,8 @@ class API:
 
         return generate_response(status='success', message='')
 
-    def get_table_data(self, category: Literal['opco', 'headers']) -> dict[str, str]:
-        '''Retrieve all key-value pairs from a given category.
-        
-        Parameters
-        ----------
-            category: str
-                The category of mapping data, this is either 'opco' or 'headers'.
-        '''
-        return self.mapping.get_table_data(category)
-    
     def get_output_dir(self) -> str:
-        '''Retrieve a value from a given setting key.
+        '''Retrieve the output directory.
         
         Parameters
         ----------
@@ -60,3 +50,17 @@ class API:
         key: str = 'output_dir'
 
         return self.settings.get_setting(key)
+    
+    def update_output_dir(self) -> dict[str, str]:
+        '''Update the output directory.'''
+        from tkinter.filedialog import askdirectory
+
+        new_dir: str = askdirectory()
+    
+        if new_dir == '':
+            return
+        
+        set_sql: str = f'value = "{new_dir}"'
+        where: str = f'key = "output_dir"'
+
+        self.settings.update_setting(set_sql=set_sql, where=where)
