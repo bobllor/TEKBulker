@@ -28,8 +28,9 @@ DEFAULT_SETTINGS_MAP: dict[str, str] = {
     'output_dir': str(Path().home() / 'Downloads'),
 }
 
-# the types defined here are the only types allowed in my program (front end enforces it).
-types: dict[type, str] = {
-    str: 'TEXT',
-    bool: 'NUMBER' # has to be converted to and from 0/1
+# data for the email template, part of MAPPING table.
+DEFAULT_TEMPLATE_MAP: dict[str, str] = {
+    'text_template': '',
+    'key_words': '',
+    'words_to_replace': ''
 }
