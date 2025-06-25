@@ -10,7 +10,7 @@ class Settings:
     def get_setting(self, setting_key: str) -> list[Any]:
         '''Return the given setting value.'''
         res: list[Any] = self.db.select(
-            table=self._table, columns=['value'], where=f'setting="{setting_key}"'
+            table=self._table, columns=['value'], where=f'key="{setting_key}"'
         )
 
         if len(res) > 0:
