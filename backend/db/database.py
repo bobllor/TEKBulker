@@ -1,7 +1,7 @@
 import sqlite3
 from typing import Any, Callable
 from support.utils import generate_response
-from support.vars import DEFAULT_HEADER_MAP, DEFAULT_OPCO_MAP, DEFAULT_SETTINGS_MAP
+from support.vars import DEFAULT_HEADER_MAP, DEFAULT_OPCO_MAP, DEFAULT_SETTINGS_MAP, DEFAULT_TEMPLATE_MAP
 
 # not using sqlalchemy because i am using this to learn sql.
 # will i regret it? i already do...
@@ -17,7 +17,7 @@ class Database:
         # this is pretty annoying but category is used due to the mapping columns.
         # granted, i could just separate the two but i am too lazy to refactor.
         # FIXME: maybe?
-        settings_columns = ['category TEXT', 'setting TEXT PRIMARY KEY', 'value']
+        settings_columns = ['category TEXT', 'key TEXT PRIMARY KEY', 'value']
         tables: list[tuple[str]] = [
             ('mapping', ",".join(mapping_columns)), 
             ('settings', ",".join(settings_columns))
@@ -121,11 +121,12 @@ class Database:
         items: list[tuple[str, str, dict[str, str]]] = [
             create_tuple('mapping', 'key', DEFAULT_HEADER_MAP),
             create_tuple('mapping', 'key', DEFAULT_OPCO_MAP),
-            create_tuple('settings', 'setting', DEFAULT_SETTINGS_MAP)
+            create_tuple('mapping', 'key', DEFAULT_TEMPLATE_MAP),
+            create_tuple('settings', 'key', DEFAULT_SETTINGS_MAP)
         ]
 
         # FIXME: temporary thing, could be permanent though. used to fill the columns correctly.
-        column_names: list[str] = ['headers', 'opco', 'setting']
+        column_names: list[str] = ['headers', 'opco', 'template', 'setting']
 
         for i, item in enumerate(items):
             default_insert(item[0], item[1], item[2], column_names[i])
