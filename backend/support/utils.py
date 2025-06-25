@@ -136,3 +136,53 @@ def generate_password(max_length: int = 20) -> str:
     random.shuffle(pw)
     
     return "".join(pw)
+
+def generate_text(*, text: str, key_words: list[str] = [], words_to_replace: list[str] = []) -> str:
+    '''Replaces words in a given text with a list of words in order.
+    
+    For words to be replaced in the text it ***must be encased within brackets***.
+
+    Each index of both list corresponds to each other, i.e. key_words[2] is replaced by words_to_replace[2]. \n
+    If the ordering does not match, it will cause unintended word replacements. If the lengths do not match,
+    then the remaining key_words are skipped.
+
+    Example:
+    ```python
+    key_words: list[str] = ['example 1', 'example 2']
+    words_to_replace: list[str] = ['hello', 'world']
+
+    text: "[example 1] [example 2]! bottom text"
+
+    # replacement code here
+
+    print(text) # "hello world! bottom text"
+    ```
+    
+    Parameters
+    ----------
+        text: str
+            The text used that is being replaced, it has a max length of 500. The words being replaced
+            **must be encased by brackets**, e.g. [REPLACE ME].
+        
+        key_words: list[str]
+            List of strings that represents the words that are being replaced. It is **case sensitive**.
+        
+        words_to_replace: list[str]
+            List of strings that are used to replace the key words in the text. If the length
+            is less than key_words, then the remaining key_words are not replaced.
+    '''
+    max_chars: int = 500
+
+    # this is going to get checked on the front end but it won't hurt to have this just in case.
+    if len(text) > max_chars:
+        return generate_response(status='error', message='Cannot have a text of over 500 characters.')
+    
+    for i in range(len(key_words)):
+        # stops the replacements.
+        if i > len(words_to_replace):
+            break
+    
+        text = text.replace(f'[{key_words[i]}]', words_to_replace[i])
+    print(text)
+    
+    return generate_response(status='success', message='Successfully replaced the words in the text.')
