@@ -137,51 +137,59 @@ def generate_password(max_length: int = 20) -> str:
     
     return "".join(pw)
 
-def generate_text(*, text: str, key_words: list[str] = [], words_to_replace: list[str] = []) -> str:
-    '''Replaces words in a given text with a list of words in order.
-    
-    For words to be replaced in the text it ***must be encased within brackets***.
+def generate_text_template(*, 
+    text: str, 
+    username: str = '', 
+    password: str = '',
+    name: str = '') -> dict[str, str]:
+    '''Replaces strings in a text template for onboarding.
 
-    Each index of both list corresponds to each other, i.e. key_words[2] is replaced by words_to_replace[2]. \n
-    If the ordering does not match, it will cause unintended word replacements. If the lengths do not match,
-    then the remaining key_words are skipped.
-
+    There are key words that can be replaced: USERNAME, PASSWORD, and NAME. \n
+    In order to replace them, the exact variable ***must be enclosed by brackets***. \n
+    The key words are ***case sensitive***, the function expects it to be uppercase.
     Example:
     ```python
-    key_words: list[str] = ['example 1', 'example 2']
-    words_to_replace: list[str] = ['hello', 'world']
-
-    text: "[example 1] [example 2]! bottom text"
-
-    # replacement code here
-
-    print(text) # "hello world! bottom text"
+    password, name = password1234, John Doe
+    text = "Hello [NAME], your password is [PASSWORD] and your username is [USERNAME]."
+    # replacement code here...
+    print(text) # "Hello John Doe, your password is password1234 and your username is [USERNAME]."
     ```
     
+    This will replace **all** occurrences of the brackets. \n
+    If no values are passed in the variables, then no replacements will occur to the text.
+
     Parameters
     ----------
         text: str
             The text used that is being replaced, it has a max length of 500. The words being replaced
             **must be encased by brackets**, e.g. [REPLACE ME].
         
-        key_words: list[str]
-            List of strings that represents the words that are being replaced. It is **case sensitive**.
+        username: str, default ''
+            The username of the client.
         
-        words_to_replace: list[str]
-            List of strings that are used to replace the key words in the text. If the length
-            is less than key_words, then the remaining key_words are not replaced.
+        password: str, default ''
+            The password of the client. This is stored as **plain text**, and it is best practice to enable
+            “User must change password at next logon”  on Azure.
+        
+        name: str, default ''
+            Name of the client.
     '''
     max_chars: int = 500
 
     # this is going to get checked on the front end but it won't hurt to have this just in case.
     if len(text) > max_chars:
         return generate_response(status='error', message='Cannot have a text of over 500 characters.')
-    
+
+    key_words: list[str] = ['USERNAME', 'PASSWORD', 'NAME']
+    data: list[str] = [username, password, name]
+
     for i in range(len(key_words)):
-        # stops the replacements.
-        if i > len(words_to_replace):
-            break
+        if data[i] == '':
+            continue
     
-        text = text.replace(f'[{key_words[i]}]', words_to_replace[i])
+        replace_word: str = data[i].title() if key_words[i] == 'NAME' else data[i]
+        text = text.replace(f'[{key_words[i]}]', replace_word)
     
-    return generate_response(status='success', message='Successfully replaced the words in the text.')
+    return generate_response(status='success', 
+        message='Successfully generated the text in the output folder.',
+        values=[['text', text]])
