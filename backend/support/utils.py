@@ -156,13 +156,13 @@ def generate_text_template(*,
     ```
     
     This will replace **all** occurrences of the brackets. \n
-    If no values are passed in the variables, then no replacements will occur to the text.
+    If no values are passed in the variables, then no replacements will occur to that key word in the text.
 
     Parameters
     ----------
         text: str
             The text used that is being replaced, it has a max length of 500. The words being replaced
-            **must be encased by brackets**, e.g. [REPLACE ME].
+            **must be surrounded by brackets**, e.g. [NAME].
         
         username: str, default ''
             The username of the client.
@@ -184,6 +184,7 @@ def generate_text_template(*,
     data: list[str] = [username, password, name]
 
     for i in range(len(key_words)):
+        # this will not ever be empty, i don't know why i did this.
         if data[i] == '':
             continue
     
