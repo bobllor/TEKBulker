@@ -1,19 +1,21 @@
-import { useRef, useState } from "react";
-import DragZone from "./components/FileComponents/DragZone";
-import UploadForm from "./components/FileComponents/UploadForm";
-import FileUpload from "./components/FileComponents/FileUpload";
-import { useEffect } from "react";
+import { Routes, Route } from "react-router";
+import Buttons from "./components/Buttons";
+import Manual from "./routes/Manual";
+import Home from "./routes/Home";
+
+const fullPageStyle = 'h-screen w-screen flex flex-col justify-center items-center overflow-hidden relative'
 
 export default function App() {
-  const [showDrop, setShowDrop] = useState(false);
-
-  const inputFileRef = useRef(null);
-
   return (
-    <>
-      <div className='h-screen w-screen flex justify-center items-center'>
-        <DragZone showDrop={showDrop} setShowDrop={setShowDrop}/>
-        <UploadForm inputFileRef={inputFileRef} FileUpload={FileUpload} showDrop={showDrop} />
+    <> 
+      <div className={fullPageStyle}>
+        <div>
+          <Buttons />
+        </div>
+        <Routes>
+            <Route path='/' element={<Home />} />
+            <Route path='/manual' element={<Manual style={fullPageStyle}/>} />
+        </Routes>
       </div>
     </>
   )
