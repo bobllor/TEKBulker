@@ -6,7 +6,7 @@ export default function UploadForm({inputFileRef, FileUpload, showDrop}){
 
     return (
         <>
-            <div className={`${showDrop ? "pointer-events-none opacity-0 z-0" : "z-2"} border-1 w-[50%] h-10
+            <div className={`${showDrop ? "pointer-events-none opacity-0 z-0" : "z-2"} w-[50%] h-10
             flex flex-col justify-center items-center`}>
                 {uploadedFiles.length > 0 && uploadedFiles.map((file, i) => (
                     <div
