@@ -12,6 +12,9 @@ export async function addEntry(
 
     const objProps: Array<string> = ['name', 'opco'];
 
+    // used to focus the first input element after submission
+    let firstInput: null|HTMLInputElement = null;
+
     // put this in your notes buddy
     for(let i = 0; i < children.length; i++){
         const input = children[i];
@@ -19,6 +22,10 @@ export async function addEntry(
             // FIXME: add an alert for empty name inputs
             if(input.value.trim() == '' && input.id.includes('name')){
                 return;
+            }
+            
+            if(!firstInput){
+                firstInput = input;
             }
 
             if(formInputs[i].name == input.id){
@@ -30,5 +37,6 @@ export async function addEntry(
         }
     }
 
+    firstInput?.focus();
     setData(prev => [...prev, objTemp]);
 }

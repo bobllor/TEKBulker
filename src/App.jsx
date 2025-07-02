@@ -19,12 +19,12 @@ export default function App() {
       <div className={fullPageStyle}>
         {showModal && <Modal />}
         <div>
-          <Buttons />
-          <button onClick={() => revealModal()}>Test</button>
+          <Buttons formState={{state: formEdited, func: setFormEdited}}/>
         </div>
         <Routes>
             <Route path='/' element={<Home />} />
-            <Route path='/manual' element={<Manual style={fullPageStyle}/>} />
+            <Route path='/manual' element={<Manual style={fullPageStyle} 
+              formState={{state: formEdited, func: setFormEdited}}/>} />
         </Routes>
       </div>
     </>
