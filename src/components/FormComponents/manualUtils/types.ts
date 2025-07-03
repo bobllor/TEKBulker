@@ -1,4 +1,5 @@
 export type ManualData = {
+    id?: string,
     name?: string, 
     opco?: string,
 }

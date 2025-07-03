@@ -38,5 +38,13 @@ export async function addEntry(
     }
 
     firstInput?.focus();
+    
+    const id: string = Date.now().toString();
+    objTemp['id'] = id;
+
     setData(prev => [...prev, objTemp]);
+}
+
+export function showInput(): void{
+    
 }
