@@ -1,8 +1,8 @@
 import { useState, useRef, JSX } from "react";
-import { addEntry } from "./manualUtils/functions";
-import { formInputs, tableHeaders } from "./manualUtils/vars";
+import { addEntry, validateInput } from "./manualUtils/functions";
+import { formInputs } from "./manualUtils/vars";
 import { useManualData } from "./manualUtils/hooks";
-import { FormStateProps } from "./manualUtils/types";
+import { FormStateProps, InputDataProps } from "./manualUtils/types";
 import ManualTable from "./ManualTable";
 
 /** Form for manual entries instead of reading an Excel file. */
@@ -12,6 +12,12 @@ export default function ManualForm({formState}:{
     const divRef: React.RefObject<HTMLDivElement|null> = useRef(null);
 
     const [manualData, setManualData] = useManualData(formState);
+    
+    // input validation to prevent duplicates
+    const [inputData, setInputData] = useState<InputDataProps>(
+        {nameValue: '', opcoValue: ''}
+    );
+    const [disableSubmit, setDisableSubmit] = useState<boolean>(false);
 
     return (
         <>
@@ -19,17 +25,19 @@ export default function ManualForm({formState}:{
             className="flex flex-col gap-3 pb-5"
             ref={divRef}>
                 {formInputs.map((obj, i) => (
-                    <input name={obj.name}
+                    <input name={Object.keys(inputData)[i]}
                     id={obj.name}
-                    className="border-1 px-3 py-1 rounded-xl"
+                    className={`border-1 px-3 py-1 rounded-xl ${disableSubmit && 'border-red-400'}`}
+                    onChange={(e) => validateInput(e, setInputData, setDisableSubmit)}
                     onKeyDown={(e) => e.key == 'Enter' && addEntry(divRef, setManualData)}
                     type="text" key={i} />
                 ))}
                 <button
+                disabled={disableSubmit}
                 onClick={() => addEntry(divRef, setManualData)}>Submit</button>
             </div>
             <div
-            className="relative overflow-y-scroll min-w-150 max-w-150 min-h-60 max-h-60">
+            className="relative overflow-y-scroll min-w-100 max-w-100 min-h-60 max-h-60">
                 {manualData.length > 0 ? 
                 <ManualTable manualData={manualData} setManualData={setManualData} /> :
                 <div
