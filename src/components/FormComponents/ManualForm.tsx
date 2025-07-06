@@ -27,7 +27,9 @@ export default function ManualForm({formState}:{
                 {formInputs.map((obj, i) => (
                     <input name={Object.keys(inputData)[i]}
                     id={obj.name}
-                    className={`border-1 px-3 py-1 rounded-xl ${disableSubmit && 'border-red-400'}`}
+                    spellCheck={false}
+                    className={`outline-blue-300 border-1 px-3 py-1 rounded-xl 
+                        ${disableSubmit && 'border-red-300 outline-red-300'}`}
                     onChange={(e) => validateInput(e, setInputData, setDisableSubmit)}
                     onKeyDown={(e) => e.key == 'Enter' && addEntry(divRef, setManualData)}
                     type="text" key={i} />

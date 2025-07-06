@@ -2,7 +2,7 @@ import { JSX } from "react";
 import EditCell from "./EditCell";
 import { ManualData } from "./manualUtils/types";
 
-export default function TableData({id, data, select, maxLength, setManualData}: TableDataProps): JSX.Element{
+export default function TableData({id, data, select, maxLength, manData}: TableDataProps): JSX.Element{
     return (
         <>
             <td
@@ -10,7 +10,7 @@ export default function TableData({id, data, select, maxLength, setManualData}: 
             className="px-4 py-2 relative border-1 border-blue-400 text-center text-wrap">
                 {data.length < maxLength ? data : data.slice(0, maxLength) + '...'}
                 {id + data == select.curr && 
-                <EditCell id={id} stringVal={data} setSelectedCell={select.setCurr} setManualData={setManualData}/>}
+                <EditCell id={id} stringVal={data} setSelectedCell={select.setCurr} manData={manData}/>}
             </td>
         </>
     )
@@ -24,5 +24,8 @@ type TableDataProps = {
         curr: string,
         setCurr: React.Dispatch<React.SetStateAction<string>>
     },
-    setManualData: React.Dispatch<React.SetStateAction<Array<ManualData>>>
+    manData: {
+        manualData: Array<ManualData>
+        setManualData: React.Dispatch<React.SetStateAction<Array<ManualData>>>
+    }
 }

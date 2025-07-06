@@ -1,7 +1,6 @@
 import { JSX, useState } from "react";
 import { tableHeaders } from "./manualUtils/vars";
 import { ManualData } from "./manualUtils/types";
-import { showInput } from "./manualUtils/functions";
 import TableData from "./TableData";
 
 export default function ManualTable({manualData, setManualData}: 
@@ -9,7 +8,7 @@ export default function ManualTable({manualData, setManualData}:
     
     // uses the ID of manualData to display the cell
     const [selectedCell, setSelectedCell] = useState<string>('');
-    
+
     return (
         <>
             <table
@@ -33,13 +32,13 @@ export default function ManualTable({manualData, setManualData}:
                             data={obj.name!}
                             maxLength={16}
                             select={{curr: selectedCell, setCurr: setSelectedCell}} 
-                            setManualData={setManualData}/>
+                            manData={{manualData: manualData, setManualData: setManualData}} />
                             <TableData 
                             id={obj.opco! + obj.id}
                             data={obj.opco!}
                             maxLength={20}
                             select={{curr: selectedCell, setCurr: setSelectedCell}} 
-                            setManualData={setManualData}/>
+                            manData={{manualData: manualData, setManualData: setManualData}} />
                             <td 
                             onClick={() => setManualData(prev => prev.filter((_, id) => {
                                 return id != i;
@@ -52,4 +51,4 @@ export default function ManualTable({manualData, setManualData}:
             </table>
         </>
     )
-}
+} 

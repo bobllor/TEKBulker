@@ -5,6 +5,7 @@ import Manual from "./routes/Manual";
 import Home from "./routes/Home";
 import Modal from "./components/Modal";
 import { useModalContext } from "./context/ModalContext";
+import { Toaster } from "react-hot-toast";
 
 const fullPageStyle = 'h-screen w-screen flex flex-col justify-center items-center overflow-hidden relative'
 
@@ -17,6 +18,7 @@ export default function App() {
   return (
     <> 
       <div className={fullPageStyle}>
+        <Toaster />
         {showModal && <Modal />}
         <div>
           <Buttons formState={{state: formEdited, func: setFormEdited}}/>

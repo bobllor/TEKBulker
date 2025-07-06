@@ -1,8 +1,9 @@
 import { JSX, useEffect, useRef } from "react";
 import { ManualData } from "./manualUtils/types";
+import toast from "react-hot-toast";
 
 /** Component of ManualTable that reveals an edit box for a selected cell. */
-export default function EditCell({id, stringVal, setSelectedCell, setManualData}: EditCellProps): JSX.Element{
+export default function EditCell({id, stringVal, setSelectedCell, manData}: EditCellProps): JSX.Element{
     const inputRef = useRef<HTMLInputElement|null>(null);
     
     useEffect(() => {
@@ -25,11 +26,30 @@ export default function EditCell({id, stringVal, setSelectedCell, setManualData}
 
                     if(e.key == 'Enter'){
                         const inputVal: string = e.currentTarget.value;
+                        // used only for comparisons
+                        const loweredInputVal: string = inputVal.toLowerCase();
+
+                        if(inputVal.trim() == ''){
+                            toast.error('Cannot have an empty input for the name field.', {duration: 3000});
+                            return;
+                        }
                         
                         if(inputVal.trim() == stringVal){
                             setSelectedCell('');
                         }else{
-                            setManualData(prev => {
+                            const filteredObj: ManualData = manData.manualData.filter((obj) => id.includes(obj.id!))[0];
+
+                            // the else condition guarantees that the input is different than the original column value. 
+                            // yes, it is quite confusing... but i don't want to rewrite my function (hindsight 20/20)
+                            const nameVal: string = filteredObj.name!.toLowerCase();
+                            const columnVal: string = filteredObj.opco!.toLowerCase();
+
+                            if(nameVal == loweredInputVal || columnVal == loweredInputVal){
+                                toast.error('Cannot have duplicate values for the fields.', {duration: 3000});
+                                return;
+                            }   
+
+                            manData.setManualData(prev => {
                                 const newData: Array<ManualData> = prev.map((obj) => {
                                     const objID: string = obj.id!;
                                     
@@ -78,5 +98,10 @@ type EditCellProps = {
     id: string,
     stringVal: string,
     setSelectedCell: React.Dispatch<React.SetStateAction<string>>,
+    manData: ManDataProps
+}
+
+type ManDataProps = {
+    manualData: Array<ManualData>
     setManualData: React.Dispatch<React.SetStateAction<Array<ManualData>>>
 }

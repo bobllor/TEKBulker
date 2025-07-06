@@ -2,6 +2,7 @@ import React, { Dispatch } from "react";
 import { InputDataProps } from "./types";
 import { ManualData } from "./types";
 import { formInputs } from "./vars";
+import toast from "react-hot-toast";
 
 export async function addEntry(
     divRef: React.RefObject<HTMLDivElement|null>,
@@ -23,11 +24,12 @@ export async function addEntry(
     for(let i = 0; i < children.length; i++){
         const input: Element = children[i];
         if(input instanceof HTMLInputElement){
-            // FIXME: add an alert for these errors
             if(input.value.trim() == '' && input.id.includes('name')){
+                toast.error('Cannot have an empty entry in the name field.', {duration: 3000});
                 return;
             }
             if(firstInputVal == input.value){
+                toast.error('Cannot have two of the same value as an entry.', {duration: 3000});
                 return;
             }
             
@@ -75,8 +77,4 @@ export function validateInput(event: React.ChangeEvent<HTMLInputElement>,
 
             return {...prev, [elementName]: currValue}
         })
-}
-
-export function showInput(): void{
-    
 }
