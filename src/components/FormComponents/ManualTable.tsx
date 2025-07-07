@@ -2,12 +2,14 @@ import { JSX, useState } from "react";
 import { tableHeaders } from "./manualUtils/vars";
 import { ManualData } from "./manualUtils/types";
 import TableData from "./TableData";
+import Trash from "../../svgs/Trash";
 
 export default function ManualTable({manualData, setManualData}: 
     {manualData: ManualData[], setManualData: React.Dispatch<React.SetStateAction<Array<ManualData>>>}): JSX.Element{
     
     // uses the ID of manualData to display the cell
     const [selectedCell, setSelectedCell] = useState<string>('');
+    // editCell, setEditCell
 
     return (
         <>
@@ -19,7 +21,7 @@ export default function ManualTable({manualData, setManualData}:
                             <th key={i}
                             className="px-4 py-1 w-25 text-center">{header}</th>
                         ))}
-                        <th></th>
+                        <th className="w-3"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,11 +41,14 @@ export default function ManualTable({manualData, setManualData}:
                             maxLength={20}
                             select={{curr: selectedCell, setCurr: setSelectedCell}} 
                             manData={{manualData: manualData, setManualData: setManualData}} />
-                            <td 
+                            <td
+                            className="px-1"
                             onClick={() => setManualData(prev => prev.filter((_, id) => {
                                 return id != i;
                             }))}>
-                                D
+                                <span className="flex justify-center items-center hover:bg-gray-400 rounded-xl py-1">  
+                                    <Trash />
+                                </span>
                             </td>
                         </tr>
                     ))}

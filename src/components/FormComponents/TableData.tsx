@@ -3,11 +3,12 @@ import EditCell from "./EditCell";
 import { ManualData } from "./manualUtils/types";
 
 export default function TableData({id, data, select, maxLength, manData}: TableDataProps): JSX.Element{
+    // TODO: add selectable cells.
     return (
         <>
             <td
             onDoubleClick={() => select.setCurr(id + data)}
-            className="px-4 py-2 relative border-1 border-blue-400 text-center text-wrap">
+            className={`px-4 py-2 relative text-center text-wrap`}>
                 {data.length < maxLength ? data : data.slice(0, maxLength) + '...'}
                 {id + data == select.curr && 
                 <EditCell id={id} stringVal={data} setSelectedCell={select.setCurr} manData={manData}/>}

@@ -1,5 +1,5 @@
 import { useState, useRef, JSX } from "react";
-import { addEntry, validateInput } from "./manualUtils/functions";
+import { addEntry, submitManualEntry, validateInput } from "./manualUtils/functions";
 import { formInputs } from "./manualUtils/vars";
 import { useManualData } from "./manualUtils/hooks";
 import { FormStateProps, InputDataProps } from "./manualUtils/types";
@@ -36,10 +36,10 @@ export default function ManualForm({formState}:{
                 ))}
                 <button
                 disabled={disableSubmit}
-                onClick={() => addEntry(divRef, setManualData)}>Submit</button>
+                onClick={() => addEntry(divRef, setManualData)}>Add Entry</button>
             </div>
             <div
-            className="relative overflow-y-scroll min-w-100 max-w-100 min-h-60 max-h-60">
+            className="relative overflow-y-scroll min-w-120 max-w-120 min-h-60 max-h-60">
                 {manualData.length > 0 ? 
                 <ManualTable manualData={manualData} setManualData={setManualData} /> :
                 <div
@@ -47,6 +47,10 @@ export default function ManualForm({formState}:{
                     <p><strong>No entries entered</strong></p>
                 </div>
                 }
+            </div>
+            <div>
+                <button
+                onClick={() => submitManualEntry(manualData)}>Submit</button>
             </div>
         </>
     )

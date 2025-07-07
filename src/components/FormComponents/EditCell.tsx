@@ -1,6 +1,7 @@
 import { JSX, useEffect, useRef } from "react";
 import { ManualData } from "./manualUtils/types";
 import toast from "react-hot-toast";
+import { toastError } from "../../toastUtils";
 
 /** Component of ManualTable that reveals an edit box for a selected cell. */
 export default function EditCell({id, stringVal, setSelectedCell, manData}: EditCellProps): JSX.Element{
@@ -16,8 +17,8 @@ export default function EditCell({id, stringVal, setSelectedCell, manData}: Edit
     return (
         <>
             <div
-            className="absolute z-3 top-[50%] bg-white border-1 p-3 flex justify-center items-center gap-5">
-                <input className="border-1 p-2 rounded-xl w-35"
+            className="absolute h-12 z-3 top-[50%] bg-white border-1 p-3 flex justify-center items-center gap-5">
+                <input className="border-1 py-1 px-2 rounded-xl w-35"
                 spellCheck={false}
                 ref={inputRef}
                 type="text" defaultValue={stringVal} 
@@ -45,10 +46,10 @@ export default function EditCell({id, stringVal, setSelectedCell, manData}: Edit
                             const columnVal: string = filteredObj.opco!.toLowerCase();
 
                             if(nameVal == loweredInputVal || columnVal == loweredInputVal){
-                                toast.error('Cannot have duplicate values for the fields.', {duration: 3000});
+                                toastError('Cannot have duplicate values for the fields.');
                                 return;
                             }   
-
+                            
                             manData.setManualData(prev => {
                                 const newData: Array<ManualData> = prev.map((obj) => {
                                     const objID: string = obj.id!;
