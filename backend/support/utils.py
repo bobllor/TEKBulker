@@ -161,7 +161,7 @@ def generate_username(
         username: str = func(username)
     
     # default is user defined
-    default_opco: str = opco_map.get('default', 'NOTFOUND.COM')
+    default_opco: str = opco_map.get('default', 'needs-a-default-value.com')
     
     return f'{username}@{opco_map.get(opco, default_opco)}'
 
