@@ -43,27 +43,39 @@ class API:
         names: list[str] = []
         usernames: list[str] = []
 
-        for obj in content:
-            name: str = obj['name']
-            opco: str = obj['opco']
+        seen_names: dict[str, int] = {}
 
+        # contains name, opco, and id. id is not relevant to this however.
+        # i could also possibly add in the block sign in values in the content...
+        for obj in content:
+            # FIXME: let's add a validation here before something breaks.
+            name: str = utils.validate_name(obj['name'])
             names.append(name)
-            usernames.append(utils.generate_username(name, func=lambda x: x.replace(' ', '.'), 
-                opco=opco, opco_map=self.mapping.get_table_data('opco')))
+
+            # assume duplicate names are unique, a number is added to distinguish the username.
+            if name not in seen_names:
+                seen_names[name] = 1
+            else:
+                seen_names[name] = seen_names.get(name) + 1
+
+                name = name + str(seen_names.get(name))
+
+            opco: str = obj['opco']
+            username: str = utils.generate_username(name, func=lambda x: x.replace(' ', '.'), 
+                opco=opco, opco_map=self.mapping.get_table_data('opco'))
+
+            usernames.append(username)
         
         passwords: list[str] = [utils.generate_password() for _ in range(len(names))]
-        countries: list[str] = []
+        
+        utils.generate_csv(
+            names=names, usernames=usernames, passwords=passwords, file_path=self.get_output_dir()
+        )
 
         return utils.generate_response(status='success', message='')
 
     def get_output_dir(self) -> str:
-        '''Retrieve the output directory.
-        
-        Parameters
-        ----------
-            setting_key: str
-                The name of a setting, this is defined in the default settings dictionary.
-        '''
+        '''Retrieve the output directory.'''
         key: str = 'output_dir'
 
         return self.settings.get_setting(key)
