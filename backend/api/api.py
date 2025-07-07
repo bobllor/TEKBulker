@@ -2,7 +2,7 @@ from db.database import Database
 from .settings import Settings
 from .mapping import Mapping
 from core.parser import Parser
-from support.utils import generate_response
+import support.utils as utils
 from typing import Literal
 
 class API:
@@ -17,7 +17,7 @@ class API:
         # could add csv support here, for now it will be excel.
         # NOTE: this could be useless because my front end already has this check.
         if('spreadsheet' not in delimited[0].lower()):
-            return generate_response(message='Incorrect file entered, got file TYPE_HERE')
+            return utils.generate_response(message='Incorrect file entered, got file TYPE_HERE')
 
         b64_string: str = delimited[-1]
 
@@ -32,12 +32,29 @@ class API:
         names: list[str] = parser.get_names(col_name=default_headers['name'])
         usernames: list[str] = parser.get_usernames(names=names, opco_map=self.mapping.get_table_data('opco'))
         passwords: list[str] = parser.get_passwords()
-        countries: list[str] = parser.df[default_headers.get('country')].to_list()
 
-        parser.generate_csv(names=names, usernames=usernames, passwords=passwords,
-            file_path=self.get_output_dir(), countries=countries)
+        utils.generate_csv(names=names, usernames=usernames, passwords=passwords,
+            file_path=self.get_output_dir())
 
-        return generate_response(status='success', message='')
+        return utils.generate_response(status='success', message='')
+    
+    def generate_manual_csv(self, content: list[dict[str, str]]) -> dict[str, str]:
+        '''Generates the Azure CSV file for bulk accounts through the manual input.'''
+        names: list[str] = []
+        usernames: list[str] = []
+
+        for obj in content:
+            name: str = obj['name']
+            opco: str = obj['opco']
+
+            names.append(name)
+            usernames.append(utils.generate_username(name, func=lambda x: x.replace(' ', '.'), 
+                opco=opco, opco_map=self.mapping.get_table_data('opco')))
+        
+        passwords: list[str] = [utils.generate_password() for _ in range(len(names))]
+        countries: list[str] = []
+
+        return utils.generate_response(status='success', message='')
 
     def get_output_dir(self) -> str:
         '''Retrieve the output directory.
