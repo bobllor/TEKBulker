@@ -1,3 +1,4 @@
+import { toastError, toastSuccess } from '../../../toastUtils.ts';
 import '../../../types.ts';
 
 //** Reads a file and generates a Base64 string for decoding. */
@@ -24,7 +25,7 @@ export async function uploadFile(
         const fileExtension: string|undefined = file?.name.split('.').at(-1);
 
         if(!file || !fileExtension || fileExtension?.toLowerCase() != 'xlsx'){
-            console.log('FIX ME: add alert here for incorrect file type.');
+            toastError(`Only Excel files (.xlsx) are supported, got file type .${fileExtension}.`);
             continue;
         }
 
@@ -36,10 +37,10 @@ export async function uploadFile(
             const res: {status: string, message: string} = await window.pywebview.api.generate_azure_csv(b64);
 
             if(res.status == 'success'){
-                console.log(`FIX ME: add alert for ${res.message}`);
+                toastSuccess(res.message);
             }
         }catch(error){
-            console.log(`FIX ME: add alert here for ${error}`);
+            toastError(error);
         }
     }
 }

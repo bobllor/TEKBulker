@@ -20,7 +20,7 @@ export default function App() {
       <div className={fullPageStyle}>
         <Toaster />
         {showModal && <Modal />}
-        <div>
+        <div className="flex justify-center items-center gap-2">
           <Buttons formState={{state: formEdited, func: setFormEdited}}/>
         </div>
         <Routes>

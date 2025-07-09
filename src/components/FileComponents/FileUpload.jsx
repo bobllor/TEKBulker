@@ -2,26 +2,29 @@ import { useFileContext } from "../../context/FileContext"
 import AddFile from "../../svgs/AddFile";
 
 export default function FileUpload({ inputFileRef }){
-    const { setUploadedFile } = useFileContext();
+    const { setUploadedFiles } = useFileContext();
 
     const onFileChange = (event) => {
-        setUploadedFile(prev => [...prev, event.target.files[0]]);
+        setUploadedFiles(prev => [...prev, event.target.files[0]]);
     }
 
     return (
         <>
             <button
-            className="py-5 px-10 rounded-xl bg-blue-500 text-white flex gap-1">
-                <AddFile />
-                <label className="relative z-0" htmlFor="file-dialog">
-                    <input className="opacity-0 absolute w-full h-[inherit]"
+            className="py-5 px-10 rounded-xl bg-blue-500 text-white flex gap-1 relative transition-all hover:bg-blue-400">
+                <div
+                className="flex justify-center items-center">
+                    <AddFile />
+                    <input className="opacity-0 absolute w-full h-full"
                     accept=".xlsx"
                     id="file-dialog"
                     ref={inputFileRef}
                     onChange={onFileChange}
                     type='file' />
-                    Add File
-                </label>
+                    <span>
+                        Add File
+                    </span>
+                </div>
             </button>
         </>
     )
