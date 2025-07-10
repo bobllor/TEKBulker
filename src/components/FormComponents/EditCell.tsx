@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { toastError } from "../../toastUtils";
 
 /** Component of ManualTable that reveals an edit box for a selected cell. */
-export default function EditCell({id, stringVal, setSelectedCell, manData}: EditCellProps): JSX.Element{
+export default function EditCell({id, stringVal, setEditCell, manData}: EditCellProps): JSX.Element{
     const inputRef = useRef<HTMLInputElement|null>(null);
     
     useEffect(() => {
@@ -23,7 +23,7 @@ export default function EditCell({id, stringVal, setSelectedCell, manData}: Edit
                 ref={inputRef}
                 type="text" defaultValue={stringVal} 
                 onKeyDown={(e) => {
-                    if(e.key == 'Escape') setSelectedCell('');
+                    if(e.key == 'Escape') setEditCell('');
 
                     if(e.key == 'Enter'){
                         const inputVal: string = e.currentTarget.value;
@@ -36,7 +36,7 @@ export default function EditCell({id, stringVal, setSelectedCell, manData}: Edit
                         }
                         
                         if(inputVal.trim() == stringVal){
-                            setSelectedCell('');
+                            setEditCell('');
                         }else{
                             const filteredObj: ManualData = manData.manualData.filter((obj) => id.includes(obj.id!))[0];
 
@@ -76,7 +76,7 @@ export default function EditCell({id, stringVal, setSelectedCell, manData}: Edit
                                 return newData;
                             })
 
-                            setSelectedCell('');
+                            setEditCell('');
                         };
                     }
                 }}/>
@@ -86,7 +86,7 @@ export default function EditCell({id, stringVal, setSelectedCell, manData}: Edit
                         C
                     </span>
                     <span
-                    onClick={() => setSelectedCell('')}>
+                    onClick={() => setEditCell('')}>
                         X
                     </span>
                 </div>
@@ -98,7 +98,7 @@ export default function EditCell({id, stringVal, setSelectedCell, manData}: Edit
 type EditCellProps = {
     id: string,
     stringVal: string,
-    setSelectedCell: React.Dispatch<React.SetStateAction<string>>,
+    setEditCell: React.Dispatch<React.SetStateAction<string>>,
     manData: ManDataProps
 }
 

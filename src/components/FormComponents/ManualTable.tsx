@@ -3,17 +3,20 @@ import { tableHeaders } from "./manualUtils/vars";
 import { ManualData } from "./manualUtils/types";
 import TableData from "./TableData";
 import Trash from "../../svgs/Trash";
+import { handleTableClick } from "./manualUtils/functions";
 
 export default function ManualTable({manualData, setManualData}: 
     {manualData: ManualData[], setManualData: React.Dispatch<React.SetStateAction<Array<ManualData>>>}): JSX.Element{
     
     // uses the ID of manualData to display the cell
+    const [editCell, setEditCell] = useState<string>('');
+
     const [selectedCell, setSelectedCell] = useState<string>('');
-    // editCell, setEditCell
 
     return (
         <>
             <table
+            onClick={(e) => handleTableClick(e, setSelectedCell)}
             className="w-full text-left">
                 <thead className="uppercase bg-gray-200">
                     <tr>
@@ -33,20 +36,22 @@ export default function ManualTable({manualData, setManualData}:
                             id={obj.name! + obj.id}
                             data={obj.name!}
                             maxLength={16}
-                            select={{curr: selectedCell, setCurr: setSelectedCell}} 
-                            manData={{manualData: manualData, setManualData: setManualData}} />
+                            edit={{editCell: editCell, setEditCell: setEditCell}} 
+                            manData={{manualData: manualData, setManualData: setManualData}}
+                            select={{selectedCell: selectedCell, setSelectedCell: setSelectedCell}} />
                             <TableData 
                             id={obj.opco! + obj.id}
                             data={obj.opco!}
                             maxLength={20}
-                            select={{curr: selectedCell, setCurr: setSelectedCell}} 
-                            manData={{manualData: manualData, setManualData: setManualData}} />
+                            edit={{editCell: editCell, setEditCell: setEditCell}} 
+                            manData={{manualData: manualData, setManualData: setManualData}}
+                            select={{selectedCell: selectedCell, setSelectedCell: setSelectedCell}} />
                             <td
-                            className="px-1"
-                            onClick={() => setManualData(prev => prev.filter((_, id) => {
-                                return id != i;
-                            }))}>
-                                <span className="flex justify-center items-center hover:bg-gray-400 rounded-xl py-1">  
+                            className="px-1">
+                                <span 
+                                onClick={() => setManualData(prev => prev.filter((_, id) => {return id != i;}))
+                                }
+                                className="flex justify-center items-center hover:bg-gray-400 rounded-xl py-1">  
                                     <Trash />
                                 </span>
                             </td>

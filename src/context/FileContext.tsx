@@ -3,18 +3,18 @@ import { useContext, createContext, useState } from "react";
 
 const FileContext = createContext<FileData>({
     uploadedFiles: [],
-    setUploadedFile: () => {}
+    setUploadedFiles: () => {}
 });
 
 export const useFileContext = () => useContext(FileContext);
 
 export function FileProvider({ children }): JSX.Element {
     // will be an array, future proof if i decide to add multiple file support
-    const [uploadedFiles, setUploadedFile] = useState<File[]>([]);
+    const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
     const data: FileData = {
         uploadedFiles,
-        setUploadedFile
+        setUploadedFiles
     }
 
     return (
@@ -28,5 +28,5 @@ export function FileProvider({ children }): JSX.Element {
 
 type FileData = {
     uploadedFiles: File[],
-    setUploadedFile: React.Dispatch<React.SetStateAction<File[]>>,
+    setUploadedFiles: React.Dispatch<React.SetStateAction<File[]>>,
 }

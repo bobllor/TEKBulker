@@ -11,8 +11,6 @@ const buttons: Array<{label: string, url: string}> = [
 
 export default function Buttons({formState}: {formState: FormStateProps}
     ): JSX.Element{
-    const buttonStyle: string = '';
-
     let navigate: NavigateFunction = useNavigate();
 
     const { revealModal } = useModalContext();
@@ -39,7 +37,8 @@ export default function Buttons({formState}: {formState: FormStateProps}
             {buttons.map((obj, i) => (
               <div key={i}
               onClick={() => clickWrapper(obj.url)}
-              className={""}>
+              className={`py-1 px-2 w-20 flex justify-center items-center rounded-xl bg-gray-300
+              ${obj.url == window.location.pathname && "bg-gray-400"}`}>
                 {obj.label}
               </div>
             ))}
