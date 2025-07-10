@@ -2,7 +2,7 @@ import React, { Dispatch } from "react";
 import { InputDataProps } from "./types";
 import { ManualData } from "./types";
 import { formInputs } from "./vars";
-import { toastError } from "../../../toastUtils";
+import { toastError, toastSuccess } from "../../../toastUtils";
 
 export async function addEntry(
     divRef: React.RefObject<HTMLDivElement|null>,
@@ -50,7 +50,7 @@ export async function addEntry(
         input.value = '';
     }
 
-    firstInput?.focus();
+    nameInput?.focus();
     
     const id: string = Date.now().toString();
     objTemp['id'] = id;
@@ -85,9 +85,13 @@ export async function submitManualEntry(manualData: Array<ManualData>): Promise<
     }
 
     let res: {status: string, message: string} = await window.pywebview.api.generate_manual_csv(manualData);
+
+    if(res.status == 'success'){
+        toastSuccess(res.message);
+    }
 }
 
-export function handleTableClick(event: React.MouseEvent<HTMLTableElement, MouseEvent>, 
+export function handleDivClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>, 
         setSelectedCell: React.Dispatch<React.SetStateAction<string>>): void{
-    console.log(event);
+    console.log(event.target);
 }
