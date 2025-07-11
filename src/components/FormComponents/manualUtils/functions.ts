@@ -92,6 +92,11 @@ export async function submitManualEntry(manualData: Array<ManualData>): Promise<
 }
 
 export function handleDivClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>, 
+        selectedCell: string,
         setSelectedCell: React.Dispatch<React.SetStateAction<string>>): void{
-    console.log(event.target);
+    const element: HTMLElement = event.target as HTMLElement;
+
+    if(selectedCell != '' && element.tagName != 'TD'){
+        setSelectedCell('');
+    }
 }

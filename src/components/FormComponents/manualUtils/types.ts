@@ -13,3 +13,8 @@ export type InputDataProps = {
     nameValue: string, 
     opcoValue: string
 }
+
+export type SelectStateProps = {
+    selectedCell: string,
+    setSelectedCell: React.Dispatch<React.SetStateAction<string>>
+}

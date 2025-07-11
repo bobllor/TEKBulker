@@ -1,8 +1,8 @@
-import { useState, useRef, JSX, useMemo } from "react";
+import { useState, useRef, JSX } from "react";
 import { addEntry, submitManualEntry, validateInput } from "./manualUtils/functions";
 import { formInputs } from "./manualUtils/vars";
 import { useManualData } from "./manualUtils/hooks";
-import { FormStateProps, InputDataProps } from "./manualUtils/types";
+import { FormStateProps, InputDataProps, SelectStateProps } from "./manualUtils/types";
 import ManualTable from "./ManualTable";
 
 const labelText: {name: string, opco: string} = {
@@ -10,8 +10,9 @@ const labelText: {name: string, opco: string} = {
 }
 
 /** Form for manual entries instead of reading an Excel file. */
-export default function ManualForm({formState}:{
-        formState: FormStateProps}
+export default function ManualForm({formState, select}:{
+        formState: FormStateProps,
+        select: SelectStateProps}
     ): JSX.Element{
     const divRef: React.RefObject<HTMLDivElement|null> = useRef(null);
 
@@ -51,7 +52,7 @@ export default function ManualForm({formState}:{
             <div
             className="relative overflow-y-scroll min-w-120 max-w-120 min-h-60 max-h-60">
                 {manualData.length > 0 ? 
-                <ManualTable manualData={manualData} setManualData={setManualData} /> :
+                <ManualTable manualData={manualData} setManualData={setManualData} select={select}/> :
                 <div
                 className="w-full flex justify-center items-center bg-gray-200 px-4 py-1 uppercase">
                     <p><strong>No entries entered</strong></p>

@@ -1,24 +1,20 @@
 import { JSX, useState } from "react";
 import { tableHeaders } from "./manualUtils/vars";
-import { ManualData } from "./manualUtils/types";
+import { ManualData, SelectStateProps } from "./manualUtils/types";
 import TableData from "./TableData";
 import Trash from "../../svgs/Trash";
-import { handleTableClick } from "./manualUtils/functions";
 
-export default function ManualTable({manualData, setManualData}: 
-    {manualData: ManualData[], setManualData: React.Dispatch<React.SetStateAction<Array<ManualData>>>}): JSX.Element{
+export default function ManualTable({manualData, setManualData, select}: 
+    ManualTableProps): JSX.Element{
     
     // uses the ID of manualData to display the cell
     const [editCell, setEditCell] = useState<string>('');
 
-    const [selectedCell, setSelectedCell] = useState<string>('');
-
     return (
         <>
             <table
-            onClick={(e) => handleTableClick(e, setSelectedCell)}
             className="w-full text-left">
-                <thead className="uppercase bg-gray-200">
+                <thead className="uppercase bg-gray-200 border-1 border-gray-400">
                     <tr>
                         {tableHeaders.map((header, i) => (
                             <th key={i}
@@ -30,7 +26,7 @@ export default function ManualTable({manualData, setManualData}:
                 <tbody>
                     {manualData.map((obj, i) => (
                         <tr
-                        className="border-b-1 border-gray-400" 
+                        className="border-1 border-gray-400 hover:bg-gray-300" 
                         key={i}>
                             <TableData 
                             id={obj.name! + obj.id}
@@ -38,14 +34,14 @@ export default function ManualTable({manualData, setManualData}:
                             maxLength={16}
                             edit={{editCell: editCell, setEditCell: setEditCell}} 
                             manData={{manualData: manualData, setManualData: setManualData}}
-                            select={{selectedCell: selectedCell, setSelectedCell: setSelectedCell}} />
+                            select={{selectedCell: select.selectedCell, setSelectedCell: select.setSelectedCell}} />
                             <TableData 
                             id={obj.opco! + obj.id}
                             data={obj.opco!}
                             maxLength={20}
                             edit={{editCell: editCell, setEditCell: setEditCell}} 
                             manData={{manualData: manualData, setManualData: setManualData}}
-                            select={{selectedCell: selectedCell, setSelectedCell: setSelectedCell}} />
+                            select={{selectedCell: select.selectedCell, setSelectedCell: select.setSelectedCell}} />
                             <td
                             className="px-1">
                                 <span 
@@ -61,4 +57,10 @@ export default function ManualTable({manualData, setManualData}:
             </table>
         </>
     )
-} 
+}
+
+type ManualTableProps = {
+    manualData: ManualData[], 
+    setManualData: React.Dispatch<React.SetStateAction<Array<ManualData>>>,
+    select: SelectStateProps
+}

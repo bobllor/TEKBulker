@@ -1,12 +1,16 @@
-import React, { JSX } from "react";
+import { JSX, useState } from "react";
 import ManualForm from "../components/FormComponents/ManualForm";
+import { handleDivClick } from "../components/FormComponents/manualUtils/functions";
 
 export default function Manual({style, formState}: ManualProps): JSX.Element{
+    const [selectedCell, setSelectedCell] = useState<string>('');
+
     return (
         <>
             <div
+            onClick={e => handleDivClick(e, selectedCell, setSelectedCell)}
             className={style}>
-                <ManualForm formState={formState}/>
+                <ManualForm formState={formState} select={{selectedCell: selectedCell, setSelectedCell: setSelectedCell}}/>
             </div>
         </>
     )
