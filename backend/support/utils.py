@@ -63,7 +63,7 @@ def generate_csv(*,
 
         new_df: pd.DataFrame = pd.DataFrame(csv_data)
         
-        file_name: str = f'{get_date()}-azure-bulk'
+        file_name: str = f'{get_date()}-azure-bulk.csv'
         full_path: str = file_path + f'/{file_name}'
 
         with open(full_path, 'w') as f:
