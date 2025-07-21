@@ -10,7 +10,7 @@ if __name__ == '__main__':
     api: API = API(db=db)
 
     title: str = 'TEMPORARY'
-    url: str = 'http://192.168.1.154:5173/'
+    url: str = 'http://localhost:5173/'
 
     webview.create_window(title, url, js_api=api)
     webview.start(debug=True)
