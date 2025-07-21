@@ -23,8 +23,7 @@ class Parser:
         # lower all column names.
         self.df.rename(mapper=lambda x: x.lower(), axis=1, inplace=True)
 
-    def validate_df(self, *, default_headers: dict[str, str], default_opco: str = 'staffing',
-        default_country: str = 'United States') -> dict[str, str]:
+    def validate_df(self, *, default_headers: dict[str, str], default_opco: str = 'staffing') -> dict[str, str]:
         '''Validate the DataFrame.
         
         Parameters
@@ -36,9 +35,6 @@ class Parser:
             
             default_opco: str, staffing
                 The default operating company to fall back on if the column contains empty values.
-
-            default_country: str, default "United States"
-                The default country to fall back on if the column contains empty values.
         '''
         res: dict[str, str] = self._check_df_columns(default_headers)
 
@@ -47,12 +43,9 @@ class Parser:
         
         # used for column names (user defined)
         full_name: str = default_headers.get('name')
-        country: str = default_headers.get('country')
         opco: str = default_headers.get('opco')
 
         self.df[full_name] = self.df[full_name].apply(func=util.validate_name)
-
-        self.df[country].fillna(default_country, inplace=True)
         self.df[opco].fillna(default_opco, inplace=True)
 
         # drop any rows with empty name values. should be rare...
@@ -124,4 +117,4 @@ class Parser:
         if len(found) != len(rev_column_map):
             return util.generate_response(status='error', message='')
 
-        return util.generate_response(status='success', message='')
+        return util.generate_response(status='success')

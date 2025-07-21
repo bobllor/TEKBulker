@@ -10,8 +10,17 @@ class API:
         self.settings: Settings = Settings(db)
         self.mapping: Mapping = Mapping(db)
 
-    def generate_azure_csv(self, content: str) -> dict[str, str]:
-        '''Generates the Azure CSV file for bulk accounts.'''
+    def generate_azure_csv(self, content: str, file_name: str) -> dict[str, str]:
+        '''Generates the Azure CSV file for bulk accounts.
+        
+        Parameters
+        ----------
+            content: str
+                A base64 string representing an Excel file.
+            
+            file_name: str
+                Name of the file given with the content.
+        '''
         delimited: list[str] = content.split(',')
 
         # could add csv support here, for now it will be excel.
@@ -26,9 +35,14 @@ class API:
         default_headers: dict[str, str] = self.mapping.get_default_data(map_type='headers')
         default_opco: dict[str, str] = self.mapping.get_default_data(map_type='opco')
 
-        parser.validate_df(default_headers=default_headers, default_opco=default_opco)
+        validate_dict: dict[str, str] = parser.validate_df(
+            default_headers=default_headers, default_opco=default_opco
+        )
 
-        # woah.
+        if validate_dict.get('status', 'error') == 'error':
+            return utils.generate_response(status='error', message=f'Invalid file \
+                {file_name} uploaded.')
+
         names: list[str] = parser.get_names(col_name=default_headers['name'])
         usernames: list[str] = parser.get_usernames(names=names, opco_map=self.mapping.get_table_data('opco'))
         passwords: list[str] = parser.get_passwords()
@@ -36,7 +50,7 @@ class API:
         utils.generate_csv(names=names, usernames=usernames, passwords=passwords,
             file_path=self.get_output_dir())
 
-        return utils.generate_response(status='success', message='')
+        return utils.generate_response(status='success', message=f'Generated CSV file for {file_name}.')
     
     def generate_manual_csv(self, content: list[dict[str, str]]) -> dict[str, str]:
         '''Generates the Azure CSV file for bulk accounts through the manual input.'''

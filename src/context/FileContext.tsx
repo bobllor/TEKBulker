@@ -1,5 +1,6 @@
 import { JSX } from "react";
 import { useContext, createContext, useState } from "react";
+import { UploadedFilesProps } from "../components/FileComponents/utils/types";
 
 const FileContext = createContext<FileData>({
     uploadedFiles: [],
@@ -10,7 +11,7 @@ export const useFileContext = () => useContext(FileContext);
 
 export function FileProvider({ children }): JSX.Element {
     // will be an array, future proof if i decide to add multiple file support
-    const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+    const [uploadedFiles, setUploadedFiles] = useState<Array<UploadedFilesProps>>([]);
 
     const data: FileData = {
         uploadedFiles,
@@ -27,6 +28,6 @@ export function FileProvider({ children }): JSX.Element {
 }
 
 type FileData = {
-    uploadedFiles: File[],
-    setUploadedFiles: React.Dispatch<React.SetStateAction<File[]>>,
+    uploadedFiles: Array<UploadedFilesProps>,
+    setUploadedFiles: React.Dispatch<React.SetStateAction<Array<UploadedFilesProps>>>,
 }

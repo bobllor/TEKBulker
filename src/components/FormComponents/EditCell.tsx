@@ -18,7 +18,7 @@ export default function EditCell({id, stringVal, setEditCell, manData}: EditCell
         <>
             <div
             className="absolute h-12 z-3 top-[50%] bg-white border-1 p-3 flex justify-center items-center gap-5">
-                <input className="border-1 py-1 px-2 rounded-xl w-35"
+                <input className="border-1 py-1 px-2 rounded-xl w-35 outline-0"
                 spellCheck={false}
                 ref={inputRef}
                 type="text" defaultValue={stringVal} 
@@ -28,7 +28,7 @@ export default function EditCell({id, stringVal, setEditCell, manData}: EditCell
                     if(e.key == 'Enter'){
                         const inputVal: string = e.currentTarget.value;
                         // used only for comparisons
-                        const loweredInputVal: string = inputVal.toLowerCase();
+                        const loweredInputVal: string = inputVal.toLowerCase().trim();
 
                         if(inputVal.trim() == ''){
                             toast.error('Cannot have an empty input for the name field.', {duration: 3000});

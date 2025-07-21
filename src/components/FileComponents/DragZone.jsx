@@ -1,6 +1,9 @@
 import { onDragDrop } from "./utils";
+import { useFileContext } from "../../context/FileContext"
 
 export default function DragZone({showDrop, setShowDrop}){
+    const { setUploadedFiles } = useFileContext();
+
     function dragOver(event){
         event.preventDefault();
 
@@ -25,7 +28,7 @@ export default function DragZone({showDrop, setShowDrop}){
                     <div
                     onDragLeave={(e) => dragLeave(e)}
                     onDrop={(e) => {
-                        onDragDrop(e);
+                        onDragDrop(e, setUploadedFiles);
 
                         // ensures it will always turn off the zone.
                         if(showDrop){

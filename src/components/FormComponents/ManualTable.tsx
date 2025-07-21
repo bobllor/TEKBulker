@@ -14,7 +14,7 @@ export default function ManualTable({manualData, setManualData, select}:
         <>
             <table
             className="w-full text-left">
-                <thead className="uppercase bg-gray-200 border-1 border-gray-400">
+                <thead className="uppercase bg-gray-400 border-1 border-gray-400">
                     <tr>
                         {tableHeaders.map((header, i) => (
                             <th key={i}
@@ -26,7 +26,7 @@ export default function ManualTable({manualData, setManualData, select}:
                 <tbody>
                     {manualData.map((obj, i) => (
                         <tr
-                        className="border-1 border-gray-400 hover:bg-gray-300" 
+                        className={`border-1 border-gray-400 hover:bg-blue-400/40 ${(i + 1) % 2 == 0 && 'bg-gray-200'}`} 
                         key={i}>
                             <TableData 
                             id={obj.name! + obj.id}

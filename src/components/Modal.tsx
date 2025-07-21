@@ -40,7 +40,7 @@ export default function Modal(): JSX.Element{
                 className="flex gap-10">
                     {buttons.map((obj, i) => (
                     <button
-                    className="bg-blue-300 p-2 rounded-xl w-30 h-10 hover:bg-blue-600" 
+                    className="bg-blue-500/90 p-2 rounded-xl w-30 h-10 hover:bg-blue-400/60 text-white" 
                     key={i} onClick={obj.func}>
                         {obj.name}
                     </button>

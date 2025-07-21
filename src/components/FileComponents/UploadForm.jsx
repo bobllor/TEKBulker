@@ -1,21 +1,29 @@
 import { uploadFile } from "./utils"; 
 import { useFileContext } from "../../context/FileContext";
+import React from "react";
+import FileEntry from "./FileEntry";
 
 export default function UploadForm({inputFileRef, FileUpload, showDrop}){
-    const { uploadedFiles, setUploadedFiles } = useFileContext();
+    const { uploadedFiles } = useFileContext();
 
     return (
         <>
-            <div className={`${showDrop ? "pointer-events-none opacity-0 z-0" : "z-2"} w-[50%] h-10
+            <div className={`${showDrop ? "pointer-events-none opacity-0 z-0" : "z-2"} w-[50%]
             flex flex-col justify-center items-center`}>
-                <FileUpload inputFileRef={inputFileRef}/>
-                {uploadedFiles.length > 0 && uploadedFiles.map((file, i) => (
-                    <div
-                    className="flex"
-                    key={i}>
-                        {file.name}
+                {uploadedFiles.length == 0 ? <FileUpload inputFileRef={inputFileRef}/> :
+                <>
+                    <div className="flex justify-start w-full">
+                        <FileUpload inputFileRef={inputFileRef} hasUploadedFiles={true}/>
                     </div>
-                ))}
+                    <div className="border-1 h-50 w-120 p-3 overflow-y-scroll">
+                        {uploadedFiles.map((file, i) => (
+                            <React.Fragment key={i}>
+                                <FileEntry file={file} />
+                            </React.Fragment>
+                        ))}
+                    </div>
+                </>
+                }
                 <form 
                 className="flex flex-col justify-center items-center gap-3"
                 onSubmit={(e) => uploadFile(e, uploadedFiles)}>

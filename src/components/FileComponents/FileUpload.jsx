@@ -1,17 +1,18 @@
 import { useFileContext } from "../../context/FileContext"
 import AddFile from "../../svgs/AddFile";
+import { onFileChange } from "./utils";
 
-export default function FileUpload({ inputFileRef }){
+const defaultStyle = "py-5 px-10 rounded-xl bg-blue-500 text-white flex gap-1";
+const filesUploadedStyle = "py-2 px-10 rounded-t-xl bg-blue-500 text-white flex gap-1";
+
+export default function FileUpload({ inputFileRef, hasUploadedFiles = false }){
     const { setUploadedFiles } = useFileContext();
-
-    const onFileChange = (event) => {
-        setUploadedFiles(prev => [...prev, event.target.files[0]]);
-    }
 
     return (
         <>
             <button
-            className="py-5 px-10 rounded-xl bg-blue-500 text-white flex gap-1 relative transition-all hover:bg-blue-400">
+            className={`${!hasUploadedFiles ? defaultStyle : filesUploadedStyle}
+                relative transition-all hover:bg-blue-400`}>
                 <div
                 className="flex justify-center items-center">
                     <AddFile />
@@ -19,7 +20,7 @@ export default function FileUpload({ inputFileRef }){
                     accept=".xlsx"
                     id="file-dialog"
                     ref={inputFileRef}
-                    onChange={onFileChange}
+                    onChange={e => onFileChange(e, setUploadedFiles)}
                     type='file' />
                     <span>
                         Add File
