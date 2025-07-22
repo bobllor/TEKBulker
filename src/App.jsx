@@ -17,7 +17,10 @@ export default function App() {
 
   return (
     <> 
-      <div className={fullPageStyle}>
+      <div 
+      onDragOver={e => e.preventDefault()}
+      onDrop={e => e.preventDefault()}
+      className={fullPageStyle}>
         <Toaster />
         {showModal && <Modal />}
         <div className="flex justify-center items-center gap-2">

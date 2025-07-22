@@ -50,7 +50,7 @@ export default function ManualForm({formState, select}:{
                 onClick={() => addEntry(divRef, setManualData)}>Add Entry</button>
             </div>
             <div
-            className="relative overflow-y-scroll min-w-120 max-w-120 min-h-60 max-h-60">
+            className="relative overflow-y-scroll min-w-150 max-w-150 min-h-80 max-h-80">
                 {manualData.length > 0 ? 
                 <ManualTable manualData={manualData} setManualData={setManualData} select={select}/> :
                 <div

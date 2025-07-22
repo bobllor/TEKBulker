@@ -37,6 +37,11 @@ export async function uploadFile(
     fileArr: Array<UploadedFilesProps>): Promise<void>{
     event.preventDefault();
 
+    if(fileArr.length == 0){
+        toastError("No files were submitted.");
+        return;
+    }
+
     for(const file of fileArr){
         const fileExtension: string|undefined = file.file?.name.split('.').at(-1);
 

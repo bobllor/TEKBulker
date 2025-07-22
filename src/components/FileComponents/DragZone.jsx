@@ -23,7 +23,7 @@ export default function DragZone({showDrop, setShowDrop}){
         <>
             <div
             onDragOver={(e) => dragOver(e)}
-            className={`absolute h-100 w-150 flex justify-center items-center`}>
+            className={`absolute h-full w-[97%] flex justify-center items-center`}>
                 {showDrop && 
                     <div
                     onDragLeave={(e) => dragLeave(e)}
@@ -36,7 +36,7 @@ export default function DragZone({showDrop, setShowDrop}){
                         }
                     }}
                     className="z-2 absolute h-[inherit] w-[inherit] 
-                    flex justify-center items-center bg-green-300">
+                    flex justify-center items-center bg-green-300 rounded-xl">
                         <p className="pointer-events-none">Drop file here</p>
                     </div>
                 }
