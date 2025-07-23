@@ -13,6 +13,11 @@ export function onFileChange(
 
         const fileName: string = file.name;
 
+        if(fileName.split(".").at(-1)?.toLowerCase() != 'xlsx'){
+            toastError("Only Excel files (.xlsx) are accepted.");
+            return;
+        }
+
         setUploadedFiles(prev => [...prev, {id: id, name: fileName, file: file}]);
 }
 

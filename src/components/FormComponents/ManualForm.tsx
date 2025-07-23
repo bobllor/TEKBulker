@@ -46,6 +46,7 @@ export default function ManualForm({formState, select}:{
                     </div>
                 ))}
                 <button
+                className={`px-5 py-3 rounded-xl bg-blue-500 text-white hover:bg-blue-400`}
                 disabled={disableSubmit}
                 onClick={() => addEntry(divRef, setManualData)}>Add Entry</button>
             </div>
@@ -61,6 +62,7 @@ export default function ManualForm({formState, select}:{
             </div>
             <div>
                 <button
+                className={`px-10 py-3 rounded-xl bg-blue-500 text-white hover:bg-blue-400`}
                 onClick={() => submitManualEntry(manualData)}>Submit</button>
             </div>
         </>
