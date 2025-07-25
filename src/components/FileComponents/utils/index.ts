@@ -47,6 +47,8 @@ export async function uploadFile(
         return;
     }
 
+    const b64Arr: Array<{fileName: string, b64: string}> = [];
+
     for(const file of fileArr){
         const fileExtension: string|undefined = file.file?.name.split('.').at(-1);
 
@@ -54,24 +56,24 @@ export async function uploadFile(
             toastError(`Only Excel files (.xlsx) are supported, got file type .${fileExtension}.`);
             continue;
         }
+        
+        const b64: string|ArrayBuffer|null = await getBase64(file.file);
 
-        // this will probably be moved out, depending on what i do with the array.
-        try{
-            const b64: string|ArrayBuffer|null = await getBase64(file.file);
-            
-            // TODO: add alerts with the response from the api
-            const res: {
-                status: string, message: string
-            } = await window.pywebview.api.generate_azure_csv(b64, file.name);
-            
-            if(res.status == 'success'){
-                toastSuccess(res.message);
-            }else{
-                toastError(res.message);
-            }
-        }catch(error){
-            toastError(error);
+        b64Arr.push({fileName: file.name, b64: b64 as string})
+    }
+
+    try{
+        const res: {
+            status: string, message: string
+        } = await window.pywebview.api.generate_azure_csv(b64Arr);
+        
+        if(res.status == 'success'){
+            toastSuccess(res.message);
+        }else{
+            toastError(res.message);
         }
+    }catch(error){
+        toastError(error);
     }
 }
 

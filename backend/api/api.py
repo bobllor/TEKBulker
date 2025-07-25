@@ -2,6 +2,7 @@ from db.database import Database
 from .settings import Settings
 from .mapping import Mapping
 from core.parser import Parser
+from support.types import GenerateCSVProps
 import support.utils as utils
 from typing import Literal
 
@@ -10,47 +11,65 @@ class API:
         self.settings: Settings = Settings(db)
         self.mapping: Mapping = Mapping(db)
 
-    def generate_azure_csv(self, content: str, file_name: str) -> dict[str, str]:
+    def generate_azure_csv(self, content: list[GenerateCSVProps], single_file: bool = False) -> dict[str, str]: 
         '''Generates the Azure CSV file for bulk accounts.
         
         Parameters
         ----------
-            content: str
-                A base64 string representing an Excel file.
+            content: list[GenerateCSVProps]
+                List of dictionaries that contains the keys `fileName` and `b64`. 
             
-            file_name: str
-                Name of the file given with the content.
+            single_file: bool, default `False`
+                If True, then all entries in the content will be merged into one file instead of a file
+                for each entry. If a file fails, then it will not be added to the final output.
+                By default it is `False`.
         '''
-        delimited: list[str] = content.split(',')
+        if single_file:
+            cache_names: list[str] = []
+            cache_usernames: list[str] = []
+            cache_passwords: list[str] = []  
 
-        # could add csv support here, for now it will be excel.
-        # NOTE: this could be useless because my front end already has this check.
-        if('spreadsheet' not in delimited[0].lower()):
-            return utils.generate_response(message='Incorrect file entered, got file TYPE_HERE')
+        for ele in content:
+            delimited: list[str] = ele['b64'].split(',')
+            file_name: str = ele['fileName']
 
-        b64_string: str = delimited[-1]
+            # could add csv support here, for now it will be excel.
+            # NOTE: this could be useless because my front end already has this check.
+            if('spreadsheet' not in delimited[0].lower()):
+                return utils.generate_response(message='Incorrect file entered, got file TYPE_HERE')
 
-        parser: Parser = Parser(b64_string)
+            b64_string: str = delimited[-1]
+
+            parser: Parser = Parser(b64_string)
+            
+            default_headers: dict[str, str] = self.mapping.get_default_data(map_type='headers')
+            default_opco: dict[str, str] = self.mapping.get_default_data(map_type='opco')
+
+            validate_dict: dict[str, str] = parser.validate_df(
+                default_headers=default_headers, default_opco=default_opco
+            )
+
+            if validate_dict.get('status', 'error') == 'error':
+                return utils.generate_response(status='error', message=f'Invalid file \
+                    {file_name} uploaded.')
+
+            names: list[str] = parser.get_names(col_name=default_headers['name'])
+            usernames: list[str] = parser.get_usernames(names=names, opco_map=self.mapping.get_table_data('opco'))
+            passwords: list[str] = parser.get_passwords()
+
+            if single_file:
+                cache_names.extend(names)
+                cache_usernames.extend(usernames)
+                cache_passwords.extend(passwords)
+            else:
+                utils.generate_csv(names=names, usernames=usernames, passwords=passwords,
+                    file_path=self.get_output_dir())
         
-        default_headers: dict[str, str] = self.mapping.get_default_data(map_type='headers')
-        default_opco: dict[str, str] = self.mapping.get_default_data(map_type='opco')
+        if single_file:
+            utils.generate_csv(names=cache_names, usernames=cache_usernames, passwords=cache_usernames,
+                file_path=self.get_output_dir())
 
-        validate_dict: dict[str, str] = parser.validate_df(
-            default_headers=default_headers, default_opco=default_opco
-        )
-
-        if validate_dict.get('status', 'error') == 'error':
-            return utils.generate_response(status='error', message=f'Invalid file \
-                {file_name} uploaded.')
-
-        names: list[str] = parser.get_names(col_name=default_headers['name'])
-        usernames: list[str] = parser.get_usernames(names=names, opco_map=self.mapping.get_table_data('opco'))
-        passwords: list[str] = parser.get_passwords()
-
-        utils.generate_csv(names=names, usernames=usernames, passwords=passwords,
-            file_path=self.get_output_dir())
-
-        return utils.generate_response(status='success', message=f'Generated CSV file for {file_name}.')
+        return utils.generate_response(status='success', message=f'')
     
     def generate_manual_csv(self, content: list[dict[str, str]]) -> dict[str, str]:
         '''Generates the Azure CSV file for bulk accounts through the manual input.'''
