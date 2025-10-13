@@ -1,13 +1,17 @@
 from db.database import Database
-import webview
 from api.api import API
+from logger import Log
+import webview
 
 DB_NAME = 'azuregenerator.sqlite'
 DB_PATH = f'backend/assets/{DB_NAME}'
 
 if __name__ == '__main__':
+    logger: Log = Log()
+    logger.set_logger()
+
     db: Database = Database(DB_PATH)
-    api: API = API(db=db)
+    api: API = API(db)
     size: tuple[int, int] = (1280, 720)
 
     title: str = 'TEMPORARY'

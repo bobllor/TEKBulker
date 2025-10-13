@@ -3,13 +3,15 @@ from .settings import Settings
 from .mapping import Mapping
 from core.parser import Parser
 from support.types import GenerateCSVProps
-import support.utils as utils
 from typing import Literal
+from logging import getLogger, Logger
+import support.utils as utils
 
 class API:
-    def __init__(self, *, db: Database):
+    def __init__(self, db: Database):
         self.settings: Settings = Settings(db)
         self.mapping: Mapping = Mapping(db)
+        self.logger: Logger = getLogger("Log")
 
     def generate_azure_csv(self, content: list[GenerateCSVProps], single_file: bool = False) -> dict[str, str]: 
         '''Generates the Azure CSV file for bulk accounts.

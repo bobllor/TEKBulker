@@ -1,7 +1,8 @@
-import sqlite3
 from typing import Any, Callable
 from support.utils import generate_response
 from support.vars import DEFAULT_HEADER_MAP, DEFAULT_OPCO_MAP, DEFAULT_SETTINGS_MAP, DEFAULT_TEMPLATE_MAP
+from logging import getLogger, Logger
+import sqlite3
 
 # not using sqlalchemy because i am using this to learn sql.
 # will i regret it? i already do...
@@ -11,6 +12,7 @@ class Database:
         '''Mapping columns: category, key, value
         Settings columns: category, setting, value'''
         self.con: sqlite3.Connection = sqlite3.connect(db_str, check_same_thread=False)
+        self.logger: Logger = getLogger("Log")
 
         mapping_columns = ['category TEXT', 'key TEXT PRIMARY KEY', 'value TEXT']
 
@@ -110,7 +112,7 @@ class Database:
             for def_key in map_.keys():
                 if def_key not in flat:
                     self.insert(table=table, params=[column_name, def_key, map_.get(def_key)])
-                    print(f'Missing {def_key}')
+                    self.logger.info(f'Missing {def_key}')
         
         # helper function to generate a tuple for the list below
         # im sorry for this by the way...
