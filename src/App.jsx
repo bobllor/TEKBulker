@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router";
 import { useState } from "react";
 import Buttons from "./components/Buttons";
-import Manual from "./routes/Manual";
+import Custom from "./routes/Custom";
 import Home from "./routes/Home";
 import Modal from "./components/Modal";
 import { useModalContext } from "./context/ModalContext";
@@ -28,7 +28,7 @@ export default function App() {
         </div>
         <Routes>
             <Route path='/' element={<Home />} />
-            <Route path='/manual' element={<Manual style={fullPageStyle} 
+            <Route path='/custom' element={<Custom style={fullPageStyle} 
               formState={{state: formEdited, func: setFormEdited}}/>} />
         </Routes>
       </div>
