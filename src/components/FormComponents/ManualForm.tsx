@@ -5,10 +5,6 @@ import { useManualData } from "./manualUtils/hooks";
 import { FormStateProps, InputDataProps, SelectStateProps } from "./manualUtils/types";
 import ManualTable from "./ManualTable";
 
-const labelText: {name: string, opco: string} = {
-    name: 'Name', opco: 'Operating Company'
-}
-
 /** Form for manual entries instead of reading an Excel file. */
 export default function ManualForm({formState, select}:{
         formState: FormStateProps,
@@ -33,7 +29,7 @@ export default function ManualForm({formState, select}:{
                     <div className="flex flex-col" 
                     key={i}>
                         <span className="p-1">
-                            {labelText[Object.keys(labelText)[i]]}
+                            {obj.label}
                         </span>
                         <input name={Object.keys(inputData)[i]}
                         id={obj.name}
