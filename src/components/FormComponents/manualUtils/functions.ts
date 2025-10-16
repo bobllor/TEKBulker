@@ -39,7 +39,7 @@ export async function addEntry(
         }
 
         if(formInputs[index].name == input.id){
-            objTemp[objProps[index]] = input.value;
+            objTemp[objProps[index] as keyof ManualData] = input.value;
         }
 
         index += 1;
@@ -58,6 +58,13 @@ export async function addEntry(
     setData(prev => [...prev, objTemp]);
 }
 
+/**
+ * Validates the form inputs to ensure no duplicates are in either field, if it fails then
+ * the input field is highlighted red and the button is disabled.
+ * @param event The HTML input element 
+ * @param setInputData The react dispatch of the input data state 
+ * @param setDisableSubmit The react dispatch to disable the submit button 
+ */
 export function validateInput(event: React.ChangeEvent<HTMLInputElement>,
     setInputData: React.Dispatch<React.SetStateAction<InputDataProps>>, 
     setDisableSubmit: React.Dispatch<React.SetStateAction<boolean>>){
@@ -65,8 +72,9 @@ export function validateInput(event: React.ChangeEvent<HTMLInputElement>,
         const currValue: string = event.currentTarget.value;
 
         setInputData(prev => {
-            const otherKey: string = Object.keys(prev).filter((key) => {return key != elementName})[0];
-            const otherVal: string = prev[otherKey];
+            // retrieves the opposite input key from the current one
+            const otherKey: string = Object.keys(prev).filter((key) => key != elementName)[0];
+            const otherVal: string = prev[otherKey as keyof InputDataProps];
             
             if(otherVal == currValue && otherVal != '' && currValue != ''){
                 setDisableSubmit(true);
