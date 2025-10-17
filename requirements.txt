@@ -3,3 +3,4 @@ pywebview>=5.4; platform_system == "Windows"
 pywebview[gtk]>=5.4; platform_system == "Linux"
 pandas==2.3.3
 pytest==8.4.2
+openpyxl==3.1.5
