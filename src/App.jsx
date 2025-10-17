@@ -6,7 +6,6 @@ import Home from "./routes/Home";
 import Modal from "./components/Modal";
 import { useModalContext } from "./context/ModalContext";
 import { ToastContainer } from "react-toastify";
-import { Toaster } from "react-hot-toast";
 
 const fullPageStyle = 'h-screen w-screen flex flex-col justify-center items-center overflow-hidden relative p-3'
 

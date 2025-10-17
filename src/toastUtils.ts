@@ -5,7 +5,7 @@ export function toaster(msg: string, type: "error" | "info" | "success" | "warni
         msg,
         {
             position: "top-center",
-            type: "error",
+            type: type,
             closeOnClick: true, 
             pauseOnHover: false,
             pauseOnFocusLoss: false,
