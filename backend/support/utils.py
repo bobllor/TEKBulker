@@ -255,10 +255,6 @@ def generate_text_template(*,
     data: list[str] = [username, password, name]
 
     for i in range(len(key_words)):
-        # this will not ever be empty, i don't know why i did this.
-        if data[i] == '':
-            continue
-    
         replace_word: str = data[i].title() if key_words[i] == 'NAME' else data[i]
         text = text.replace(f'[{key_words[i]}]', replace_word)
     

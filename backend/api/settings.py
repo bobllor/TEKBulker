@@ -1,11 +1,13 @@
 from db.database import Database
+from pathlib import Path
 from typing import Any
+from logging import Logger, getLogger
 
 class Settings:
     def __init__(self, db: Database):
         self.db: Database = db
-
         self._table: str = 'settings'
+        self.logger = getLogger("Log")
     
     def get_setting(self, setting_key: str) -> list[Any]:
         '''Return the given setting value.'''

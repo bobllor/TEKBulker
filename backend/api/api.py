@@ -83,13 +83,12 @@ class API:
         # contains name, opco, and id. id is not relevant to this however.
         # i could also possibly add in the block sign in values in the content...
         for obj in content:
-            # FIXME: let's add a validation here before something breaks.
             name: str = utils.validate_name(obj['name'])
             names.append(name)
 
             # assume duplicate names are unique, a number is added to distinguish the username.
             if name not in seen_names:
-                seen_names[name] = 1
+                seen_names[name] = 0
             else:
                 seen_names[name] = seen_names.get(name) + 1
 

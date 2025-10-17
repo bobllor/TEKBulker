@@ -1,7 +1,6 @@
 from pathlib import Path
 
 AZURE_VERSION: str = 'version:v1.0'
-
 # i dont think order matters for the end csv- it may need testing.
 AZURE_HEADERS: tuple[str] = (
     'Name [displayName] Required',
@@ -21,9 +20,8 @@ DEFAULT_HEADER_MAP: dict[str, str] = {
 DEFAULT_OPCO_MAP: dict[str, str] = {
     'default': 'placeholder.com',
 }
-
 DEFAULT_SETTINGS_MAP: dict[str, str] = {
-    'output_dir': str(Path().home() / 'Downloads'),
+    'output_dir': str(Path().home()),
 }
 
 # data for the email template, part of MAPPING table.
