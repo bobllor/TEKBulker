@@ -35,12 +35,13 @@ export default function FileEntry({file}: {file: UploadedFilesProps}): JSX.Eleme
 
     return (
         <>
-            <div className="px-5 py-2 default-shadow rounded-xl w-[70%] flex justify-between m-3">
+            <div className="px-5 py-2 default-shadow rounded-xl w-[90%] flex justify-between">
                 <div
                 title={file.name}
                 ref={divRef}
-                className="flex p-2 w-50 bg-gray-400/40 text-nowrap default-shadow rounded-xl overflow-x-hidden">
+                className="flex p-2 w-[60%] bg-gray-400/20 text-nowrap default-shadow rounded-xl overflow-x-hidden">
                     <span
+                    className="text-center w-full"
                     ref={spanRef}
                     >{file.name}</span>
                 </div>

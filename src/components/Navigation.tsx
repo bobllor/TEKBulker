@@ -9,7 +9,7 @@ const buttons: Array<{label: string, url: string}> = [
     {label: 'Custom', url: '/custom'}
 ]
 
-export default function Buttons({formState}: {formState: FormStateProps}
+export default function Navigation({formState}: {formState: FormStateProps}
     ): JSX.Element{
     let navigate: NavigateFunction = useNavigate();
 

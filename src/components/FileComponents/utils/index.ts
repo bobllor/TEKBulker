@@ -1,4 +1,5 @@
-import { toastError, toastSuccess } from '../../../toastUtils.ts';
+import React from 'react';
+import { toaster } from '../../../toastUtils.ts';
 import '../../../types.ts';
 import { UploadedFilesProps } from './types.ts';
 
@@ -14,9 +15,12 @@ export function onFileChange(
         const fileName: string = file.name;
 
         if(fileName.split(".").at(-1)?.toLowerCase() != 'xlsx'){
-            toastError("Only Excel files (.xlsx) are accepted.");
+            toaster("Only Excel files (.xlsx) are accepted.", "error");
             return;
         }
+
+        // some weird thing with input elements. if i recall this was an issue in my last project too.
+        event.currentTarget.value = "";
 
         setUploadedFiles(prev => [...prev, {id: id, name: fileName, file: file}]);
 }
@@ -43,7 +47,7 @@ export async function uploadFile(
     event.preventDefault();
 
     if(fileArr.length == 0){
-        toastError("No files were submitted.");
+        toaster("No files were submitted.", "error");
         return;
     }
 
@@ -53,7 +57,7 @@ export async function uploadFile(
         const fileExtension: string|undefined = file.file?.name.split('.').at(-1);
 
         if(!file || !fileExtension || fileExtension?.toLowerCase() != 'xlsx'){
-            toastError(`Only Excel files (.xlsx) are supported, got file type .${fileExtension}.`);
+            toaster(`Only Excel files (.xlsx) are supported, got file type .${fileExtension}.`, "error");
             continue;
         }
         
@@ -68,12 +72,14 @@ export async function uploadFile(
         } = await window.pywebview.api.generate_azure_csv(b64Arr);
         
         if(res.status == 'success'){
-            toastSuccess(res.message);
+            toaster(res.message, "success");
         }else{
-            toastError(res.message);
+            toaster(res.message, "error");
         }
     }catch(error){
-        toastError(error);
+        if(error instanceof Error){
+            toaster(error.message, "error");
+        }
     }
 }
 

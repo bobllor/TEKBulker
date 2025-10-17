@@ -2,7 +2,7 @@ import React, { Dispatch } from "react";
 import { InputDataProps } from "./types";
 import { ManualData } from "./types";
 import { formInputs } from "./vars";
-import { toastError, toastSuccess } from "../../../toastUtils";
+import { toaster } from "../../../toastUtils";
 
 export async function addEntry(
     divRef: React.RefObject<HTMLDivElement|null>,
@@ -26,10 +26,10 @@ export async function addEntry(
         const value: string = input.value.trim();
 
         if(value == '' && input.id.includes('name')){
-            toastError('Cannot have an empty entry in the name field.');
+            toaster('Empty entry in the name field is not allowed.', "error");
             return;
         }else if(nameInputValue == value){
-            toastError('Cannot have two of the same value as an entry.');
+            toaster('Cannot have duplicate values in the fields.', "error");
             return;
         }
 
@@ -88,14 +88,14 @@ export function validateInput(event: React.ChangeEvent<HTMLInputElement>,
 
 export async function submitManualEntry(manualData: Array<ManualData>): Promise<void>{
     if(manualData.length == 0){
-        toastError('Cannot generate CSV due to having no entries.');
+        toaster('No entries found.', "error");
         return;
     }
 
     let res: {status: string, message: string} = await window.pywebview.api.generate_manual_csv(manualData);
 
     if(res.status == 'success'){
-        toastSuccess(res.message);
+        toaster(res.message, "success");
     }
 }
 

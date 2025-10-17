@@ -1,13 +1,15 @@
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 
-export function toastError(msg: string, duration: number = 3000): void{
-    toast.error(
-        msg, {duration: duration}
-    )
-}
-
-export function toastSuccess(msg: string, duration: number = 3000): void{
-    toast.success(
-        msg, {duration: duration}
+export function toaster(msg: string, type: "error" | "info" | "success" | "warning", duration: number = 3000): void{
+    toast(
+        msg,
+        {
+            position: "top-center",
+            type: "error",
+            closeOnClick: true, 
+            pauseOnHover: false,
+            pauseOnFocusLoss: false,
+            autoClose: duration,
+        }
     )
 }
