@@ -3,7 +3,9 @@ from .settings import Settings
 from .mapping import Mapping
 from core.parser import Parser
 from support.types import GenerateCSVProps
-from typing import Literal
+from base64 import b64decode
+from io import BytesIO
+import pandas as pd
 from logging import getLogger, Logger
 import support.utils as utils
 
@@ -42,20 +44,29 @@ class API:
 
             b64_string: str = delimited[-1]
 
-            parser: Parser = Parser(b64_string)
-            
-            default_headers: dict[str, str] = self.mapping.get_default_data(map_type='headers')
-            default_opco: dict[str, str] = self.mapping.get_default_data(map_type='opco')
+            try:
+                decoded_data: bytes = b64decode(b64_string)
+                in_mem_bytes: BytesIO = BytesIO(decoded_data)
+                df: pd.DataFrame = pd.read_excel(in_mem_bytes)
 
-            validate_dict: dict[str, str] = parser.validate_df(
-                default_headers=default_headers, default_opco=default_opco
-            )
+                parser: Parser = Parser(df)
+                
+                default_headers: dict[str, str] = self.mapping.get_default_data(map_type='headers')
+                default_opco: dict[str, str] = self.mapping.get_default_data(map_type='opco')
+
+                parser.apply(default_headers["name"], utils.validate_name)
+                validate_dict: dict[str, str] = parser.validate_df(
+                    default_headers=default_headers, default_opco=default_opco
+                )
+            except Exception as e:
+                self.logger.error(f"Failed to parse file {e}")
+                continue
 
             if validate_dict.get('status', 'error') == 'error':
                 return utils.generate_response(status='error', message=f'Invalid file \
                     {file_name} uploaded.')
 
-            names: list[str] = parser.get_names(col_name=default_headers['name'])
+            names: list[str] = parser.get_rows(default_headers['name']) 
             usernames: list[str] = parser.get_usernames(names=names, opco_map=self.mapping.get_table_data('opco'))
             passwords: list[str] = parser.get_passwords()
 
@@ -66,7 +77,7 @@ class API:
             else:
                 utils.generate_csv(names=names, usernames=usernames, passwords=passwords,
                     file_path=self.get_output_dir())
-        
+
         if single_file:
             utils.generate_csv(names=cache_names, usernames=cache_usernames, passwords=cache_usernames,
                 file_path=self.get_output_dir())
