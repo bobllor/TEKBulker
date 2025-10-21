@@ -180,7 +180,13 @@ def generate_name(name: str) -> tuple[str]:
     return f_name, l_name
 
 def generate_password(max_length: int = 20) -> str:
-    '''Random password generation.'''
+    '''Random password generation.
+    
+    Parameters
+    ----------
+        max_length: int default 20
+            The max length of the password. By default it is 20.
+    '''
     # FIXME: add a profanity checker?
     import random, string
 
