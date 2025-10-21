@@ -1,24 +1,18 @@
 import pandas as pd
 import support.utils as util
-from base64 import b64decode
-from io import BytesIO
+from typing import Any, Callable
 from support.vars import AZURE_HEADERS, AZURE_VERSION
 
 class Parser:
-    def __init__(self, b64_string: str):
+    def __init__(self, df: pd.DataFrame):
         '''Class used to modify, validate, and parse an Excel file.
         
         Parameters
         ----------
-            b64_string: str
-                A Base64 string, this will get decoded into bytes for *pandas* to read.
+            df: pd.DataFrame
+                The DataFrame, Parser creates a deep copy of the given DataFrame.
         '''
-        decoded_data: bytes = b64decode(b64_string)
-        in_mem_bytes: BytesIO = BytesIO(decoded_data)
-
-        # at the moment excel only. CSVs could work because of the amount of columns
-        # that can appear in a file, maybe.
-        self.df: pd.DataFrame = pd.read_excel(in_mem_bytes)
+        self.df: pd.DataFrame = df.copy(deep=True)
 
         # lower all column names.
         self.df.rename(mapper=lambda x: x.lower(), axis=1, inplace=True)
@@ -42,32 +36,65 @@ class Parser:
             return res
         
         # used for column names (user defined)
-        full_name: str = default_headers.get('name')
         opco: str = default_headers.get('opco')
 
-        self.df[full_name] = self.df[full_name].apply(func=util.validate_name)
         self.df[opco].fillna(default_opco, inplace=True)
-
-        # drop any rows with empty name values. should be rare...
-        bad_rows: list[int] = self._find_bad_names(self.df[full_name].to_list())
-        
-        self.df.drop(index=bad_rows, axis=0, inplace=True)
 
         return res
     
-    def get_names(self, *, col_name: str) -> list[str]:
-        '''Get a list of names from the DataFrame.
+    def drop_empty_rows(self, col_name: str) -> None:
+        '''Drop rows if a row is empty or NaN based on rows from a given column name.
+        The DataFrame is modified in-place.
+        '''
+        bad_rows: list[int] = []
+
+        for i, data in enumerate(self.get_data(col_name)):
+            if not isinstance(data, str):
+                bad_rows.append(i)
+        
+        self.df.drop(index=bad_rows, axis=0, inplace=True)
+    
+    def apply(self, *, col_name: str, func: Callable[[Any], Any]) -> None:
+        '''Applies a function onto a column and replaces the column values in the DataFrame.
+
+        Parameters
+        ----------
+            col_name: str
+                The column name of the DataFrame.
+
+            func: Callable
+                A callable function, it must take one argument and returns one argument. 
+        '''
+        col_name = col_name.lower()
+        self.df[col_name] = self.df[col_name].apply(func=func)
+    
+    def get_columns(self) -> list[str]:
+        '''Returns a list of column names.'''
+        return self.df.columns.to_list()
+    
+    def get_rows(self, col_name: str) -> list[Any]:
+        '''Get rows from a DataFrame column in the form of a list.
         
         Parameters
         ----------
             col_name: str
                 The column name of the DataFrame that represents the names column.
+                It is not case sensitive.
         '''
         # the names are validated and corrected in validate_df.
-        return self.df[col_name].to_list()
+        return self.df[col_name.lower()].to_list()
 
     def get_usernames(self, *, names: list[str], opco_map: dict[str, str]) -> list[str]:
-        '''Get a list of usernames from a list of names.'''
+        '''Get a list of usernames from a list of names.
+        
+        Parameters
+        ----------
+            names: list[str]
+                The list of names.
+            
+            opco_map: dict[str, str]
+                Mappings of operating companies as the key and their custom domain names as the values.
+        '''
         usernames: list[str] = []
 
         for name in names:
