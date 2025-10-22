@@ -1,6 +1,6 @@
 import pandas as pd
 import support.utils as util
-from typing import Any, Callable
+from typing import Any, Callable, overload, Literal
 from support.vars import AZURE_HEADERS, AZURE_VERSION
 
 class Parser:
@@ -17,8 +17,8 @@ class Parser:
         # lower all column names.
         self.df.rename(mapper=lambda x: x.lower(), axis=1, inplace=True)
 
-    def validate_df(self, *, default_headers: dict[str, str], default_opco: str = 'staffing') -> dict[str, str]:
-        '''Validate the DataFrame.
+    def validate_headers(self, default_headers: dict[str, str]) -> dict[str, str]:
+        '''Validate the headers of the DataFrame.
         
         Parameters
         ----------
@@ -26,36 +26,34 @@ class Parser:
                 Dictionary that maps internal variable names to user-defined names. The keys
                 are the internal names, the values are user-defined names. Used to validate
                 column headers.
-            
-            default_opco: str, staffing
-                The default operating company to fall back on if the column contains empty values.
         '''
         res: dict[str, str] = self._check_df_columns(default_headers)
 
         if res.get('status', 'error') == 'error':
             return res
-        
-        # used for column names (user defined)
-        opco: str = default_headers.get('opco')
-
-        self.df[opco].fillna(default_opco, inplace=True)
 
         return res
     
+    def fillna(self, column: str, value: Any) -> None:
+        '''Replaces all NaN values on a target column with a value in place.'''
+        column = column.lower()
+        self.df[column] = self.df[column].fillna(value)
+    
     def drop_empty_rows(self, col_name: str) -> None:
-        '''Drop rows if a row is empty or NaN based on rows from a given column name.
-        The DataFrame is modified in-place.
+        '''Drop rows if a row is empty or NaN based on rows from a given column name. 
+        The DataFrame is modified in place.
         '''
         bad_rows: list[int] = []
 
-        for i, data in enumerate(self.get_data(col_name)):
+        for i, data in enumerate(self.get_rows(col_name)):
             if not isinstance(data, str):
                 bad_rows.append(i)
         
         self.df.drop(index=bad_rows, axis=0, inplace=True)
     
-    def apply(self, *, col_name: str, func: Callable[[Any], Any]) -> None:
-        '''Applies a function onto a column and replaces the column values in the DataFrame.
+    def apply(self, col_name: str, *, func: Callable[[Any], Any]) -> None:
+        '''Applies a function onto a column and replaces the column values in the DataFrame
+        in place.
 
         Parameters
         ----------
