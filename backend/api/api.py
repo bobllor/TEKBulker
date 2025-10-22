@@ -6,14 +6,14 @@ from support.types import GenerateCSVProps
 from base64 import b64decode
 from io import BytesIO
 import pandas as pd
-from logging import getLogger, Logger
+from logger import Log
 import support.utils as utils
 
 class API:
-    def __init__(self, db: Database):
+    def __init__(self, db: Database, *, logger: Log = None):
         self.settings: Settings = Settings(db)
         self.mapping: Mapping = Mapping(db)
-        self.logger: Logger = getLogger("Log")
+        self.logger: Log = logger or Log()
 
     def generate_azure_csv(self, content: list[GenerateCSVProps], single_file: bool = False) -> dict[str, str]: 
         '''Generates the Azure CSV file for bulk accounts.
@@ -24,10 +24,13 @@ class API:
                 List of dictionaries that contains the keys `fileName` and `b64`. 
             
             single_file: bool, default `False`
-                If True, then all entries in the content will be merged into one file instead of a file
-                for each entry. If a file fails, then it will not be added to the final output.
+                If True, then all entries in the content will be merged into one file instead of a new 
+                file for each entry. If a file fails, then it will not be added to the final output.
                 By default it is `False`.
         '''
+        # TODO: the loop will be called in the frontend.
+        # i have an idea with the UI/UX and that is to give a status on each entry graphic.
+        # TODO: update this code to the test code. currently in progress.
         if single_file:
             cache_names: list[str] = []
             cache_usernames: list[str] = []
@@ -54,9 +57,9 @@ class API:
                 default_headers: dict[str, str] = self.mapping.get_default_data(map_type='headers')
                 default_opco: dict[str, str] = self.mapping.get_default_data(map_type='opco')
 
-                parser.apply(default_headers["name"], utils.validate_name)
-                validate_dict: dict[str, str] = parser.validate_df(
-                    default_headers=default_headers, default_opco=default_opco
+                parser.apply(default_headers["name"], utils.format_name)
+                validate_dict: dict[str, str] = parser.validate_headers(
+                    default_headers=default_headers
                 )
             except Exception as e:
                 self.logger.error(f"Failed to parse file {e}")
