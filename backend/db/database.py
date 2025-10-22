@@ -1,7 +1,7 @@
 from typing import Any, Callable
 from support.utils import generate_response
 from support.vars import DEFAULT_HEADER_MAP, DEFAULT_OPCO_MAP, DEFAULT_SETTINGS_MAP, DEFAULT_TEMPLATE_MAP
-from logging import getLogger, Logger
+from logger import Log
 from pathlib import Path
 import sqlite3
 
@@ -9,18 +9,23 @@ import sqlite3
 # will i regret it? i already do...
 
 class Database:
-    def __init__(self, db: Path | str):
+    def __init__(self, db: Path | str, *, logger: Log = None):
         '''Creates the database class.
 
         Parameters
         ----------
             db: Path | str
                 The path to the database file. It can be a str or Path object.
+            
+            logger: Log, default None
+                The logger. By default it is None, which becomes a default Log.
         '''
         # Mapping columns: category, key, value
         # Settings columns: category, setting, value
         self.con: sqlite3.Connection = sqlite3.connect(db, check_same_thread=False)
-        self.logger: Logger = getLogger("Log")
+        self.logger: Log = logger or Log()
+
+        self.logger.info("Database path: %s", db)
 
         mapping_columns = ['category TEXT', 'key TEXT PRIMARY KEY', 'value TEXT']
 
@@ -102,7 +107,7 @@ class Database:
         sql: str = f'DELETE FROM {table} WHERE {where}'
         self._execute(sql)
     
-    def get_all_rows(self, *, table: str) -> list[Any]:
+    def get_all_rows(self, table: str) -> list[Any]:
         '''Get all the rows in a table.'''
         res: list[Any] = self.select(table=table)
 
