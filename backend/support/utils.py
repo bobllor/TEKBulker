@@ -3,74 +3,6 @@ import pandas as pd
 from .vars import AZURE_HEADERS, AZURE_VERSION
 from typing import Literal, Any, Callable
 
-def generate_csv(*, 
-        names: list[str], 
-        usernames: list[str],
-        passwords: list[str],
-        file_path: str,
-        block_sign_in: list[str] = []) -> None:
-        '''Generates the csv file for bulk account creation in Azure.
-        
-        Parameters
-        ----------
-            names: list[str]
-                List of strings that represents the client names.
-
-            usernames: list[str]
-                List of strings that represents the usernames for each client. The values
-                are obtained from the function generate_username.
-            
-            passwords: list[str]
-                List of strings that represents the passwords for each client. The values
-                are obtained from the function generate_password.
-            
-            file_path: str
-                The string path to the output directory for the CSV file.
-            
-            block_sign_in: list[str], default []
-                A list of strings that are either "Yes" or "No", by default it is an empty list.
-                If an empty list is passed, not enough values are given, or the values length is less than names length, 
-                then every remaining entry will be defaulted to "No".
-                
-                The list length is equal to the names length.
-        '''
-        for _ in range(len(names) - len(block_sign_in)):
-            # not needed but won't hurt to have defense...?
-            block_sign_in.append('No')
-
-        first_names: list[str] = []
-        last_names: list[str] = []
-
-        for name in names:
-            f_name, l_name = generate_name(name)
-
-            first_names.append(f_name)
-            last_names.append(l_name)        
-
-        # 6 keys (in order): 
-        # name, username, password, block sign in (default no), 
-        # first name, last name
-        csv_values: list[list[str]] = [
-            names, usernames, passwords, block_sign_in,
-            first_names, last_names
-        ]
-
-        # csv_values and AZURE_HEADERS are the same order. 
-        # if you change one, then you must change the order of the other.
-        csv_data: dict[str, str] = {}
-        for i in range(len(AZURE_HEADERS)):
-            csv_data[AZURE_HEADERS[i]] = csv_values[i]
-
-        new_df: pd.DataFrame = pd.DataFrame(csv_data)
-        
-        file_name: str = f'{get_date()}-azure-bulk.csv'
-        full_path: str = file_path + f'/{file_name}'
-
-        with open(full_path, 'w') as f:
-            f.write(AZURE_VERSION + '\n')
-
-        new_df.to_csv(full_path, mode='a', index=False)
-
 def format_name(name: str) -> str:
     '''Formats a name to only the first and last name.'''
     special_chars: set[str] = set(string.punctuation)
@@ -165,7 +97,7 @@ def generate_username(
     
     return f'{username}@{opco_map.get(opco, default_opco)}'
 
-def get_date(date_format: str = '%Y-%m-%d-%H%M%S') -> str:
+def get_date(date_format: str = '%Y-%m-%dT%H%M%S') -> str:
     '''Get the date, by default it returns the format YY-MM-DD-HHMMSS'''
     from datetime import datetime
 
