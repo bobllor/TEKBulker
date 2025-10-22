@@ -97,7 +97,7 @@ class API:
         # contains name, opco, and id. id is not relevant to this however.
         # i could also possibly add in the block sign in values in the content...
         for obj in content:
-            name: str = utils.validate_name(obj['name'])
+            name: str = utils.format_name(obj['name'])
             names.append(name)
 
             # assume duplicate names are unique, a number is added to distinguish the username.

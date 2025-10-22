@@ -51,7 +51,7 @@ class Parser:
         
         self.df.drop(index=bad_rows, axis=0, inplace=True)
     
-    def apply(self, col_name: str, *, func: Callable[[Any], Any]) -> None:
+    def apply(self, col_name: str, *, func: Callable[[Any], Any], args: tuple = ()) -> None:
         '''Applies a function onto a column and replaces the column values in the DataFrame
         in place.
 
@@ -62,9 +62,12 @@ class Parser:
 
             func: Callable
                 A callable function, it must take one argument and returns one argument. 
+            
+            args: tuple, default ()
+                A tuple of any data, used with args. By default it is an empty tuple.
         '''
         col_name = col_name.lower()
-        self.df[col_name] = self.df[col_name].apply(func=func)
+        self.df[col_name] = self.df[col_name].apply(func=func, args=args)
     
     def get_columns(self) -> list[str]:
         '''Returns a list of column names.'''
@@ -81,47 +84,6 @@ class Parser:
         '''
         # the names are validated and corrected in validate_df.
         return self.df[col_name.lower()].to_list()
-
-    def get_usernames(self, *, names: list[str], opco_map: dict[str, str]) -> list[str]:
-        '''Get a list of usernames from a list of names.
-        
-        Parameters
-        ----------
-            names: list[str]
-                The list of names.
-            
-            opco_map: dict[str, str]
-                Mappings of operating companies as the key and their custom domain names as the values.
-        '''
-        usernames: list[str] = []
-
-        for name in names:
-            username: str = util.generate_username(
-                name, func=lambda x: x.replace(' ', '.').strip(), opco_map=opco_map
-            )
-
-            usernames.append(username)
-
-        return usernames
-    
-    def get_passwords(self, *, max_length: int = 20) -> list[str]:
-        '''Generates random passwords for each user in the row.'''
-        passwords: list[str] = []
-
-        for _ in range(len(self.df)):
-            passwords.append(util.generate_password(max_length))
-
-        return passwords
-    
-    def _find_bad_names(self, names: list[str]) -> list[int]:
-        '''Returns a list of integers indicating what row number a bad name value is found.'''
-        numbers: list[int] = []
-
-        for i, name in enumerate(names):
-            if not isinstance(name, str):
-                numbers.append(i)
-
-        return numbers
 
     def _check_df_columns(self, column_map: dict[str, str]) -> dict[str, str]:
         '''Checks the DataFrame columns to the reversed column map.'''

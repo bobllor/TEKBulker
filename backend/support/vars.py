@@ -4,17 +4,7 @@ from typing import Literal
 
 AZURE_VERSION: Literal['version:v1.0'] = 'version:v1.0'
 # i dont think order matters for the end csv- it may need testing.
-AZURE_HEADERS: tuple[str] = (
-    'Name [displayName] Required',
-    'User name [userPrincipalName] Required',
-    'Initial password [passwordProfile] Required',
-    'Block sign in (Yes/No) [accountEnabled] Required',
-    'First name [givenName]', 
-    'Last name [surname]',
-)
-
-# FIXME: remove this later, this is used in testing and will replace the headers above.
-AZURE_HEADERST: AzureHeaders = {
+AZURE_HEADERS: AzureHeaders = {
     'name': 'Name [displayName] Required',
     'username': 'User name [userPrincipalName] Required',
     'password': 'Initial password [passwordProfile] Required',
