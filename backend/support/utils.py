@@ -71,8 +71,8 @@ def generate_csv(*,
 
         new_df.to_csv(full_path, mode='a', index=False)
 
-def validate_name(name: str) -> str:
-    '''Validates a name to only the first and last name.'''
+def format_name(name: str) -> str:
+    '''Formats a name to only the first and last name.'''
     special_chars: set[str] = set(string.punctuation)
     
     chars: list[str] = []
