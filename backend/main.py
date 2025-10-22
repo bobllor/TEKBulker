@@ -8,10 +8,9 @@ DB_PATH = f'backend/assets/{DB_NAME}'
 
 if __name__ == '__main__':
     logger: Log = Log()
-    logger.set_logger()
 
-    db: Database = Database(DB_PATH)
-    api: API = API(db)
+    db: Database = Database(DB_PATH, logger=logger)
+    api: API = API(db, logger=logger)
     size: tuple[int, int] = (1280, 720)
 
     title: str = 'TEMPORARY'
