@@ -1,5 +1,7 @@
 from pathlib import Path
 from db.database import Database
+from api.mapping import Mapping
+from api.settings import Settings
 from typing import TypedDict, Any
 from tests.fixtures import database
 from support.vars import DEFAULT_HEADER_MAP, DEFAULT_OPCO_MAP, DEFAULT_TEMPLATE_MAP, DEFAULT_SETTINGS_MAP
@@ -31,3 +33,11 @@ def test_db_missing_defaults(database: Database):
     for key in flattened_rows:
         if key not in flattened_defaults:
             raise AssertionError("Missing default %s in database: %s", key, flattened_defaults)
+        
+def test_get_rows(database: Database):
+    rows: list[Any] = database.get_all_rows("mapping")
+
+    assert len(rows) != 0
+
+def test_add_opco(database: Database):
+    mapping: Mapping = Mapping(database) 

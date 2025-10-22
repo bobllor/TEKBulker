@@ -1,6 +1,5 @@
 from pathlib import Path
-from typing import Any, get_args
-from numpy import nan
+from typing import Any
 from support.vars import DEFAULT_HEADER_MAP, DEFAULT_OPCO_MAP, AZURE_HEADERS, AZURE_VERSION
 from core.azure_writer import AzureWriter, HeadersKey
 from core.parser import Parser
@@ -8,6 +7,7 @@ from faker import Faker
 from io import BytesIO
 import pandas as pd
 import support.utils as utils
+import numpy as np
 import random
 
 # this is faked and cleaned data, no sensitive leaks.
@@ -54,17 +54,17 @@ def test_apply_name():
     
     assert True
 
-def test_fill():
+def test_fill_nan():
     df: pd.DataFrame = pd.read_json(test_json)
     parser: Parser = Parser(df)
 
     # filling all columns with nan first.
-    parser.apply(OPERATING_COMPANY, func=lambda x: nan)
-    print(parser.get_rows(OPERATING_COMPANY))
-
+    parser.apply(OPERATING_COMPANY, func=lambda x: np.nan)
     parser.fillna(OPERATING_COMPANY, DEFAULT_HEADER_MAP["opco"])
 
-    print(parser.get_rows(OPERATING_COMPANY))
+    for opco in parser.get_rows(DEFAULT_HEADER_MAP["opco"]):
+        if opco == np.nan:
+            raise AssertionError(f"Failed to fill empty rows for {DEFAULT_HEADER_MAP["opco"]}")
 
 def test_validate_df():
     df: pd.DataFrame = pd.read_json(test_json)
@@ -132,7 +132,7 @@ def test_write_new_csv(tmp_path: Path):
         base_data: list[str] = writer.get_data(key)
 
         if not df_data == base_data:
-            assert f"Failed to match baseline: {base_data}, got: {df_data}"
+            raise AssertionError(f"Failed to match baseline: {base_data}, got: {df_data}")
 
 def randomizer(_: str, *args) -> str:
     '''Chooses a random element from the given list and returns it.'''
