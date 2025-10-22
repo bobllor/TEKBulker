@@ -2,12 +2,14 @@ from db.database import Database
 from .settings import Settings
 from .mapping import Mapping
 from core.parser import Parser
+from core.azure_writer import AzureWriter
 from support.types import GenerateCSVProps
 from base64 import b64decode
 from io import BytesIO
-import pandas as pd
 from logger import Log
+from pathlib import Path
 import support.utils as utils
+import pandas as pd
 
 class API:
     def __init__(self, db: Database, *, logger: Log = None):
@@ -15,27 +17,17 @@ class API:
         self.mapping: Mapping = Mapping(db)
         self.logger: Log = logger or Log()
 
-    def generate_azure_csv(self, content: list[GenerateCSVProps], single_file: bool = False) -> dict[str, str]: 
+    def generate_azure_csv(self, content: list[GenerateCSVProps]) -> dict[str, str]: 
         '''Generates the Azure CSV file for bulk accounts.
         
         Parameters
         ----------
             content: list[GenerateCSVProps]
                 List of dictionaries that contains the keys `fileName` and `b64`. 
-            
-            single_file: bool, default `False`
-                If True, then all entries in the content will be merged into one file instead of a new 
-                file for each entry. If a file fails, then it will not be added to the final output.
-                By default it is `False`.
         '''
-        # TODO: the loop will be called in the frontend.
+        # TODO: the loop will be called in the frontend with singel file.
         # i have an idea with the UI/UX and that is to give a status on each entry graphic.
-        # TODO: update this code to the test code. currently in progress.
-        if single_file:
-            cache_names: list[str] = []
-            cache_usernames: list[str] = []
-            cache_passwords: list[str] = []  
-
+        # this is a separate function, i am not using this one.
         for ele in content:
             delimited: list[str] = ele['b64'].split(',')
             file_name: str = ele['fileName']
@@ -47,50 +39,46 @@ class API:
 
             b64_string: str = delimited[-1]
 
-            try:
-                decoded_data: bytes = b64decode(b64_string)
-                in_mem_bytes: BytesIO = BytesIO(decoded_data)
-                df: pd.DataFrame = pd.read_excel(in_mem_bytes)
+            decoded_data: bytes = b64decode(b64_string)
+            in_mem_bytes: BytesIO = BytesIO(decoded_data)
+            df: pd.DataFrame = pd.read_excel(in_mem_bytes)
 
-                parser: Parser = Parser(df)
-                
-                default_headers: dict[str, str] = self.mapping.get_default_data(map_type='headers')
-                default_opco: dict[str, str] = self.mapping.get_default_data(map_type='opco')
+            parser: Parser = Parser(df)
+            
+            default_headers: dict[str, str] = self.mapping.get_default_data(map_type='headers')
+            default_opco: dict[str, str] = self.mapping.get_default_data(map_type='opco')
 
-                parser.apply(default_headers["name"], utils.format_name)
-                validate_dict: dict[str, str] = parser.validate_headers(
-                    default_headers=default_headers
-                )
-            except Exception as e:
-                self.logger.error(f"Failed to parse file {e}")
-                continue
+            parser.apply(default_headers["name"], utils.format_name)
+            validate_dict: dict[str, str] = parser.validate_headers(
+                default_headers=default_headers
+            )
 
             if validate_dict.get('status', 'error') == 'error':
                 return utils.generate_response(status='error', message=f'Invalid file \
                     {file_name} uploaded.')
 
             names: list[str] = parser.get_rows(default_headers['name']) 
-            usernames: list[str] = parser.get_usernames(names=names, opco_map=self.mapping.get_table_data('opco'))
-            passwords: list[str] = parser.get_passwords()
+            opcos: list[str] = parser.get_rows(default_opco["opco"])
 
-            if single_file:
-                cache_names.extend(names)
-                cache_usernames.extend(usernames)
-                cache_passwords.extend(passwords)
-            else:
-                utils.generate_csv(names=names, usernames=usernames, passwords=passwords,
-                    file_path=self.get_output_dir())
+            opco_map: dict[str, str] = self.mapping.get_table_data("opco")
 
-        if single_file:
-            utils.generate_csv(names=cache_names, usernames=cache_usernames, passwords=cache_usernames,
-                file_path=self.get_output_dir())
+            writer: AzureWriter = AzureWriter(logger=self.logger)
+
+            writer.set_full_names(names)
+            writer.set_names(names)
+            writer.set_block_sign_in(len(names), []) 
+            writer.set_usernames(names, opcos=opcos, opco_map=opco_map)
+            writer.set_passwords([utils.generate_password(20) for _ in range(len(names))])
+
+            csv_name: str = f"{utils.get_date()}-az-bulk.csv"
+            writer.write(Path(self.get_output_dir()) / csv_name)
 
         return utils.generate_response(status='success', message=f'')
     
     def generate_manual_csv(self, content: list[dict[str, str]]) -> dict[str, str]:
         '''Generates the Azure CSV file for bulk accounts through the manual input.'''
         names: list[str] = []
-        usernames: list[str] = []
+        opcos: list[str] = []
 
         seen_names: dict[str, int] = {}
 
@@ -108,17 +96,21 @@ class API:
 
                 name = name + str(seen_names.get(name))
 
-            opco: str = obj['opco']
-            username: str = utils.generate_username(name, func=lambda x: x.replace(' ', '.'), 
-                opco=opco, opco_map=self.mapping.get_table_data('opco'))
+            opcos.append(obj["opco"])
+        
 
-            usernames.append(username)
-        
         passwords: list[str] = [utils.generate_password() for _ in range(len(names))]
-        
-        utils.generate_csv(
-            names=names, usernames=usernames, passwords=passwords, file_path=self.get_output_dir()
-        )
+        opco_map: dict[str, str] = self.mapping.get_table_data("opco")
+        writer: AzureWriter = AzureWriter(logger=self.logger)
+
+        writer.set_full_names(names)
+        writer.set_usernames(names, opcos=opcos, opco_map=opco_map)
+        writer.set_passwords(passwords)
+        writer.set_block_sign_in(len(names), [])
+        writer.set_names(names)
+
+        csv_name: str = f"{utils.get_date()}-az-bulk.csv"
+        writer.write(Path(self.get_output_dir()) / csv_name)
 
         return utils.generate_response(status='success', message='')
 
