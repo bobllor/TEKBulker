@@ -1,9 +1,11 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, get_args
 from numpy import nan
-from support.vars import DEFAULT_HEADER_MAP, DEFAULT_OPCO_MAP, AZURE_HEADERST, AZURE_VERSION
+from support.vars import DEFAULT_HEADER_MAP, DEFAULT_OPCO_MAP, AZURE_HEADERS, AZURE_VERSION
+from core.azure_writer import AzureWriter, HeadersKey
 from core.parser import Parser
 from faker import Faker
+from io import BytesIO
 import pandas as pd
 import support.utils as utils
 import random
@@ -41,7 +43,7 @@ def test_apply_name():
         func=lambda x: x + " " + " ".join([Faker().last_name() for _ in range(0, random.randint(1, 3))])
     )
 
-    parser.apply(col_name=FULL_NAME, func=utils.validate_name)
+    parser.apply(col_name=FULL_NAME, func=utils.format_name)
 
     for name in parser.get_rows(FULL_NAME):
         name: str = name
@@ -76,39 +78,64 @@ def test_validate_df():
             expected values {[val for val in DEFAULT_HEADER_MAP.values()]}", 
         )
 
-def test_write_new_df():
+def test_write_new_csv(tmp_path: Path):
     df: pd.DataFrame = pd.read_json(test_json)
     parser: Parser = Parser(df)
 
     res: dict[str, Any] = parser.validate_headers(DEFAULT_HEADER_MAP)
 
+    if res["status"] != "success":
+        raise AssertionError(
+            f"Failed to validate headers, got {parser.get_columns()}, \
+            expected values {[val for val in DEFAULT_HEADER_MAP.values()]}", 
+        )
+
     parser.apply(DEFAULT_HEADER_MAP["name"], func=utils.format_name)
     parser.drop_empty_rows(DEFAULT_HEADER_MAP["name"])
     parser.fillna(DEFAULT_HEADER_MAP["opco"], "Operating Company")
 
-    names: list[str] = parser.get_rows(DEFAULT_HEADER_MAP["name"])
-    usernames: list[str] = parser.get_usernames(
-        names=names, opco_map=DEFAULT_OPCO_MAP
-    )
-    passwords: list[str] = parser.get_passwords()
+    parser.apply(DEFAULT_HEADER_MAP["opco"], func=randomizer, args=("company one", "company two", "company three", "random"))
 
-    first_names: list[str] = []
-    last_names: list[str] = []
-
-    for name in names:
-        name_list: list[str] = name.split()
-
-        first_names.append(name_list[0])
-        last_names.append(name_list[-1])
-
-    csv_data: dict[str, Any] = {
-        AZURE_HEADERST["name"]: names,
-        AZURE_HEADERST["username"]: usernames,
-        AZURE_HEADERST["password"]: passwords,
-        AZURE_HEADERST["block_sign_in"]: ["No" for _ in range(len(names))],
-        AZURE_HEADERST["first_name"]: first_names,
-        AZURE_HEADERST["last_name"]: last_names,
+    opco_map: dict[str, str] = {
+        "default": DEFAULT_OPCO_MAP["default"],
+        "company one": "company.one.org",
+        "company two": "companytwo.com",
+        "company three": "company.three.nhs.gov"
     }
 
-    new_df: pd.DataFrame = pd.DataFrame(csv_data)
-    print(new_df)
+    writer: AzureWriter = AzureWriter()
+
+    names: list[str] = parser.get_rows(DEFAULT_HEADER_MAP["name"])
+    passwords: list[str] = [utils.generate_password() for _ in range(len(names))]
+
+    writer.set_full_names(names)
+    writer.set_usernames(names, opcos=parser.get_rows(DEFAULT_HEADER_MAP["opco"]), opco_map=opco_map)
+    writer.set_passwords(passwords)
+    writer.set_block_sign_in(len(names))
+    writer.set_names(names)
+
+    writer.write(tmp_path / "out.csv")
+
+    output: Path = tmp_path / "out.csv"
+
+    with open(output, "r") as file:
+        content: list[str] = file.readlines()
+
+        # removing the row for parsing
+        content = content[1:]
+        csv_bytes: bytes = "".join(content).encode()
+    
+    df: pd.DataFrame = pd.read_csv(BytesIO(csv_bytes))
+
+    for key in HeadersKey.__args__:
+        df_data: list[Any] = df[key].to_list()
+        base_data: list[str] = writer.get_data(key)
+
+        if not df_data == base_data:
+            assert f"Failed to match baseline: {base_data}, got: {df_data}"
+
+def randomizer(_: str, *args) -> str:
+    '''Chooses a random element from the given list and returns it.'''
+    size: int = len(args)
+
+    return args[random.randint(0, size - 1)]
