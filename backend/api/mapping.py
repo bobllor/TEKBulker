@@ -6,7 +6,7 @@ class Mapping:
     def __init__(self, db: Database):
         self.db: Database = db
 
-        self._table: str = 'mapping'
+        self._table: Literal["mapping"] = 'mapping'
         self._columns = ['key, value']
 
         self._categories: dict[str, str] = {
@@ -36,8 +36,30 @@ class Mapping:
         
         return data
     
+    def add_row(self, category: Literal["headers", "opco", "template"], columns: list[str]) -> None:
+        '''Add a row to the table.
+        
+        Parameters
+        ----------
+            category: str, Literal["headers", "opco", "template"]
+                The category the row belongs to.
+            
+            columns: list[str]
+        '''
+
+        self.db.insert(table=self._table)
+    
     def update_data(self, *, set_sql: str, where: str) -> dict[str, str]:
-        '''Modifies data of a given key in the map.'''
+        '''Modifies the column of a given row in the database.
+        
+        Parameters
+        ----------
+            set_sql: str
+                The SQL command in string form. Example: "SET column='value',...".
+            
+            where: str
+                The SQL command to filter out the rows. Example: "WHERE column='value',..."
+        '''
         self.db.update(table=self._table, set_=set_sql, where=where)
     
     def _get_data(self, *, where: str ='') -> list[Any]:

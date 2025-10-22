@@ -27,6 +27,7 @@ class Database:
 
         self.logger.info("Database path: %s", db)
 
+        # FIXME: key has to be unique.
         mapping_columns = ['category TEXT', 'key TEXT PRIMARY KEY', 'value TEXT']
 
         # this is pretty annoying but category is used due to the mapping columns.
