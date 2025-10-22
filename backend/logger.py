@@ -67,7 +67,6 @@ class Log(Logger):
             log_file: Path = new_log_dir / DEFAULT_FILENAME
             file_handler = FileHandler(log_file)
 
-
         handlers: list[tuple[str, Handler]] = [
             ("stream_level", stream_handler)
         ]
