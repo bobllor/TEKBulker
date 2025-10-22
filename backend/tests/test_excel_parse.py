@@ -59,12 +59,12 @@ def test_fill_nan():
     parser: Parser = Parser(df)
 
     # filling all columns with nan first.
-    parser.apply(OPERATING_COMPANY, func=lambda x: np.nan)
+    parser.apply(OPERATING_COMPANY, func=lambda _: np.nan)
     parser.fillna(OPERATING_COMPANY, DEFAULT_HEADER_MAP["opco"])
 
     for opco in parser.get_rows(DEFAULT_HEADER_MAP["opco"]):
         if opco == np.nan:
-            raise AssertionError(f"Failed to fill empty rows for {DEFAULT_HEADER_MAP["opco"]}")
+            raise AssertionError(f"Failed to fill empty rows for {DEFAULT_HEADER_MAP['opco']}")
 
 def test_validate_df():
     df: pd.DataFrame = pd.read_json(test_json)

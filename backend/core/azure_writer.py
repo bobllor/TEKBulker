@@ -47,7 +47,7 @@ class AzureWriter:
 
         for i, opco in enumerate(opcos):
             name: str = formatter.replace(names[i])
-            username: str = f"{name}@{opco_map.get(opco.lower(), opco_map["default"])}"
+            username: str = f"{name}@{opco_map.get(opco.lower(), opco_map['default'])}"
 
             usernames.append(username)
         

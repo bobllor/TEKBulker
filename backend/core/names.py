@@ -24,7 +24,7 @@ class NameFormatter:
         name = self.method(name)
 
         names: list[str] = self._get_name_split(name)
-        name = f"{names[0][0]} {" ".join(names[1:])}"
+        name = f"{names[0][0]} {' '.join(names[1:])}"
 
         return name.replace(" ", self.replace_char)
     
@@ -33,7 +33,7 @@ class NameFormatter:
         name = self.method(name)
 
         names: list[str] = self._get_name_split(name)
-        name = f"{" ".join(names[0:-1])} {names[-1][0]}"
+        name = f"{' '.join(names[0:-1])} {names[-1][0]}"
 
         return name.replace(" ", self.replace_char)
     
