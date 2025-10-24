@@ -1,7 +1,7 @@
 from typing import Literal, Callable
 
 class NameFormatter:
-    '''Methods inheritance.'''
+    '''Class used to format names for the username.'''
     def __init__(self, replace_char: str, case_: Literal["upper", "lower", "title"]):
         self.replace_char: str = replace_char
         self.method: Callable[[str], str] = None
