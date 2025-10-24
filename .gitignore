@@ -25,6 +25,7 @@ dist-ssr
 
 # files
 *.xlsx
+config
 
 # python
 __pycache__/
