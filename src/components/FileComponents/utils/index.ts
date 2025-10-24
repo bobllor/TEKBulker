@@ -1,5 +1,5 @@
 import React from 'react';
-import { toaster } from '../../../toastUtils.ts';
+import { toaster, toastError } from '../../../toastUtils.ts';
 import '../../../types.ts';
 import { UploadedFilesProps } from './types.ts';
 
@@ -15,7 +15,7 @@ export function onFileChange(
         const fileName: string = file.name;
 
         if(fileName.split(".").at(-1)?.toLowerCase() != 'xlsx'){
-            toaster("Only Excel files (.xlsx) are accepted.", "error");
+            toastError("Only Excel files (.xlsx) are accepted.");
             return;
         }
 
@@ -47,7 +47,7 @@ export async function uploadFile(
     event.preventDefault();
 
     if(fileArr.length == 0){
-        toaster("No files were submitted.", "error");
+        toastError("No files were submitted.");
         return;
     }
 
@@ -57,7 +57,7 @@ export async function uploadFile(
         const fileExtension: string|undefined = file.file?.name.split('.').at(-1);
 
         if(!file || !fileExtension || fileExtension?.toLowerCase() != 'xlsx'){
-            toaster(`Only Excel files (.xlsx) are supported, got file type .${fileExtension}.`, "error");
+            toastError(`Only Excel files (.xlsx) are supported, got file type .${fileExtension}.`);
             continue;
         }
         
@@ -77,11 +77,11 @@ export async function uploadFile(
         if(res.status == 'success'){
             toaster(res.message, "success");
         }else{
-            toaster(res.message, "error");
+            toastError(res.message);
         }
     }catch(error){
         if(error instanceof Error){
-            toaster(error.message, "error");
+            toastError(error.message);
         }
     }
 }
