@@ -44,24 +44,22 @@ def format_name(name: str) -> str:
 
     return f'{f_name} {l_name}'
 
-def generate_response(*, status: Literal['error', 'success'] = 'error',
-    message: str = '', values: list[list[str, Any] | tuple[str, Any]] = []) -> dict[str, Any]:
-    '''Generate a dictionary with a response.
+def generate_response(status: Literal['error', 'success'] = 'success', **kwargs) -> dict[str, Any]:
+    '''Generate a response dictionary.
+
+    Common keys: status, message, content
     
     Parameters
     ----------
-        status: str, default *error*
+        status: str, default "success"
             The status of the response. It can only be two string values, "success" or "error".
 
-        message: str, default *''*
-            The message of a response.
-
-        values: list[list[str, Any] | tuple[str, Any]], default []
-            A list or tuple containing a key-value pair. This is added into the dictionary.
+        kwargs: dict[str, Any]
+            Any keyword argument, this gets added into the response.
     '''
-    res: dict[str, Any] = {'status': status, 'message': message}
+    res: dict[str, Any] = {'status': status}
 
-    for key, value in values:
+    for key, value in kwargs.items():
         res[key] = value
 
     return res
