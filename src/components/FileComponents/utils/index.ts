@@ -67,6 +67,9 @@ export async function uploadFile(
     }
 
     try{
+        // TODO: use the loop above to do this.
+        // YOU are going to implement a UI/UX feature here to show success/fails on each
+        // file uploaded from this method call.
         const res: {
             status: string, message: string
         } = await window.pywebview.api.generate_azure_csv(b64Arr);
