@@ -13,3 +13,17 @@ export function toaster(msg: string, type: "error" | "info" | "success" | "warni
         }
     )
 }
+
+export function toastError(msg: string, duration: number = 3000){
+    toast(
+        msg,
+        {
+            position: "top-center",
+            type: "error",
+            closeOnClick: true, 
+            pauseOnHover: false,
+            pauseOnFocusLoss: false,
+            autoClose: duration,
+        }
+    )
+}
