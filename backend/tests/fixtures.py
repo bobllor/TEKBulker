@@ -1,6 +1,7 @@
 from logger import Log
 from pathlib import Path
-from db.database import Database
+from core.json_reader import Reader
+from support.vars import DEFAULT_HEADER_MAP
 import pytest
 
 @pytest.fixture
@@ -10,8 +11,8 @@ def logger():
     yield logger
 
 @pytest.fixture
-def database(tmp_path: Path):
-    db: str = "tmp_db.sqlite"
-    db_path: Path = tmp_path / db
+def reader(tmp_path: Path):
+    json_name: str = "temp_reader.json"
+    json_path: Path = tmp_path / "cfg" / json_name
 
-    yield Database(db_path)
+    yield Reader(json_path, defaults=DEFAULT_HEADER_MAP, is_test=True)
