@@ -84,6 +84,9 @@ class Parser:
         '''
         # the names are validated and corrected in validate_df.
         return self.df[col_name.lower()].to_list()
+    
+    def get_df(self) -> pd.DataFrame:
+        return self.df
 
     def _check_df_columns(self, column_map: dict[str, str]) -> dict[str, str]:
         '''Checks the DataFrame columns to the reversed column map.'''

@@ -6,6 +6,7 @@ from base64 import b64decode
 from io import BytesIO
 from logger import Log
 from pathlib import Path
+from support.vars import DEFAULT_HEADER_MAP, DEFAULT_OPCO_MAP, DEFAULT_SETTINGS_MAP
 import support.utils as utils
 import pandas as pd
 
@@ -19,7 +20,7 @@ class API:
         self.opco: Reader = opco_reader
         self.logger: Log = logger or Log()
 
-    def generate_azure_csv(self, content: GenerateCSVProps) -> dict[str, str]: 
+    def generate_azure_csv(self, content: GenerateCSVProps | pd.DataFrame) -> dict[str, str]: 
         '''Generates the Azure CSV file for bulk accounts.
         
         Parameters
@@ -27,22 +28,25 @@ class API:
             content: GenerateCSVProps
                 A dictionary containing the content to read and parse the Excel file. 
         '''
-        delimited: list[str] = content['b64'].split(',')
-        file_name: str = content['fileName']
+        df: pd.DataFrame = None
+        if isinstance(content, dict):
+            delimited: list[str] = content['b64'].split(',')
+            file_name: str = content['fileName']
 
-        # could add csv support here, for now it will be excel.
-        # NOTE: this could be useless because my front end already has this check.
-        if('spreadsheet' not in delimited[0].lower()):
-            return utils.generate_response(status="error", 
-                message='Incorrect file entered, got file TYPE_HERE'
-            )
-        
-        # TODO: keep this, but also make it so i can pass a dataframe via tests.
-        b64_string: str = delimited[-1]
-        decoded_data: bytes = b64decode(b64_string)
-        in_mem_bytes: BytesIO = BytesIO(decoded_data)
+            # could add csv support here, for now it will be excel.
+            # NOTE: this could be useless because my front end already has this check.
+            if 'spreadsheet' not in delimited[0].lower():
+                return utils.generate_response(status="error", 
+                    message='Incorrect file entered, got file TYPE_HERE'
+                )
 
-        df: pd.DataFrame = pd.read_excel(in_mem_bytes)
+            b64_string: str = delimited[-1]
+            decoded_data: bytes = b64decode(b64_string)
+            in_mem_bytes: BytesIO = BytesIO(decoded_data)
+
+            df = pd.read_excel(in_mem_bytes)
+        else:
+            df = content
 
         parser: Parser = Parser(df)
         
@@ -59,7 +63,7 @@ class API:
             return utils.generate_response(status='error', message=f'Invalid file \
                 {file_name} uploaded.')
 
-        parser.apply(default_excel_columns["name"], utils.format_name)
+        parser.apply(default_excel_columns["name"], func=utils.format_name)
         names: list[str] = parser.get_rows(default_excel_columns['name']) 
         opcos: list[str] = parser.get_rows(default_excel_columns["opco"])
 
@@ -127,20 +131,19 @@ class API:
         '''Retrieve the output directory.'''
         key: str = 'output_dir'
 
-        # FIXME
-        return self.settings.get_setting(key)
+        return self.settings.get(key)
     
-    def update_output_dir(self) -> dict[str, str]:
+    def set_output_dir(self, dir_: Path | str = None) -> dict[str, str]:
         '''Update the output directory.'''
         from tkinter.filedialog import askdirectory
-
-        new_dir: str = askdirectory()
-    
-        if new_dir == '':
-            return
         
-        set_sql: str = f'value = "{new_dir}"'
-        where: str = f'key = "output_dir"'
+        new_dir: str = ""
+        if dir_ is None:
+            new_dir = askdirectory()
+        else:
+            new_dir = str(dir_)
 
-        # FIXME
-        self.settings.update_setting(set_sql=set_sql, where=where)
+        if new_dir == "":
+            return
+
+        self.settings.modify("output_dir", new_dir)
