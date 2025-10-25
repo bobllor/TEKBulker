@@ -1,4 +1,5 @@
-import { toastError, toastSuccess } from '../../../toastUtils.ts';
+import React from 'react';
+import { toaster, toastError } from '../../../toastUtils.ts';
 import '../../../types.ts';
 import { UploadedFilesProps } from './types.ts';
 
@@ -12,6 +13,14 @@ export function onFileChange(
         if(!file) return;
 
         const fileName: string = file.name;
+
+        if(fileName.split(".").at(-1)?.toLowerCase() != 'xlsx'){
+            toastError("Only Excel files (.xlsx) are accepted.");
+            return;
+        }
+
+        // some weird thing with input elements. if i recall this was an issue in my last project too.
+        event.currentTarget.value = "";
 
         setUploadedFiles(prev => [...prev, {id: id, name: fileName, file: file}]);
 }
@@ -37,6 +46,13 @@ export async function uploadFile(
     fileArr: Array<UploadedFilesProps>): Promise<void>{
     event.preventDefault();
 
+    if(fileArr.length == 0){
+        toastError("No files were submitted.");
+        return;
+    }
+
+    const b64Arr: Array<{fileName: string, b64: string}> = [];
+
     for(const file of fileArr){
         const fileExtension: string|undefined = file.file?.name.split('.').at(-1);
 
@@ -44,23 +60,28 @@ export async function uploadFile(
             toastError(`Only Excel files (.xlsx) are supported, got file type .${fileExtension}.`);
             continue;
         }
+        
+        const b64: string|ArrayBuffer|null = await getBase64(file.file);
 
-        // this will probably be moved out, depending on what i do with the array.
-        try{
-            const b64: string|ArrayBuffer|null = await getBase64(file.file);
-            
-            // TODO: add alerts with the response from the api
-            const res: {
-                status: string, message: string
-            } = await window.pywebview.api.generate_azure_csv(b64, file.name);
-            
-            if(res.status == 'success'){
-                toastSuccess(res.message);
-            }else{
-                toastError(res.message);
-            }
-        }catch(error){
-            toastError(error);
+        b64Arr.push({fileName: file.name, b64: b64 as string})
+    }
+
+    try{
+        // TODO: use the loop above to do this.
+        // YOU are going to implement a UI/UX feature here to show success/fails on each
+        // file uploaded from this method call.
+        const res: {
+            status: string, message: string
+        } = await window.pywebview.api.generate_azure_csv(b64Arr);
+        
+        if(res.status == 'success'){
+            toaster(res.message, "success");
+        }else{
+            toastError(res.message);
+        }
+    }catch(error){
+        if(error instanceof Error){
+            toastError(error.message);
         }
     }
 }

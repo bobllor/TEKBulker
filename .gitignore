@@ -26,6 +26,11 @@ dist-ssr
 *.sln
 *.sw?
 
+# files
+*.xlsx
+config
+
 # python
 __pycache__/
 backend/assets/
+.venv

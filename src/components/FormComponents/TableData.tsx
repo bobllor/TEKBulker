@@ -8,7 +8,7 @@ export default function TableData({id, data, edit, maxLength, manData, select}: 
             <td
             onClick={() => select.setSelectedCell(id + data)}
             onDoubleClick={() => edit.setEditCell(id + data)}
-            className={`px-4 py-2 relative text-center text-wrap hover:bg-gray-400/40
+            className={`px-4 py-2 relative text-center text-wrap hover:bg-gray-400/40 min-w-50 max-w-50
             ${select.selectedCell == id + data && "bg-gray-400 outline-blue-400/40 outline-1 z-1"}`}>
                 {data.length < maxLength ? data : data.slice(0, maxLength) + '...'}
                 {id + data == edit.editCell && 

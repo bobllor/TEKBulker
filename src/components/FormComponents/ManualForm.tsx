@@ -5,10 +5,6 @@ import { useManualData } from "./manualUtils/hooks";
 import { FormStateProps, InputDataProps, SelectStateProps } from "./manualUtils/types";
 import ManualTable from "./ManualTable";
 
-const labelText: {name: string, opco: string} = {
-    name: 'Name', opco: 'Operating Company'
-}
-
 /** Form for manual entries instead of reading an Excel file. */
 export default function ManualForm({formState, select}:{
         formState: FormStateProps,
@@ -33,7 +29,7 @@ export default function ManualForm({formState, select}:{
                     <div className="flex flex-col" 
                     key={i}>
                         <span className="p-1">
-                            {labelText[Object.keys(labelText)[i]]}
+                            {obj.label}
                         </span>
                         <input name={Object.keys(inputData)[i]}
                         id={obj.name}
@@ -46,11 +42,12 @@ export default function ManualForm({formState, select}:{
                     </div>
                 ))}
                 <button
+                className={`px-5 py-3 rounded-xl bg-blue-500 text-white hover:bg-blue-400`}
                 disabled={disableSubmit}
                 onClick={() => addEntry(divRef, setManualData)}>Add Entry</button>
             </div>
             <div
-            className="relative overflow-y-scroll min-w-120 max-w-120 min-h-60 max-h-60">
+            className="relative overflow-y-scroll min-w-150 max-w-150 min-h-80 max-h-80">
                 {manualData.length > 0 ? 
                 <ManualTable manualData={manualData} setManualData={setManualData} select={select}/> :
                 <div
@@ -61,6 +58,7 @@ export default function ManualForm({formState, select}:{
             </div>
             <div>
                 <button
+                className={`px-10 py-3 rounded-xl bg-blue-500 text-white hover:bg-blue-400`}
                 onClick={() => submitManualEntry(manualData)}>Submit</button>
             </div>
         </>
