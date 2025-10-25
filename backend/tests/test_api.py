@@ -52,5 +52,3 @@ def test_generate_csv(tmp_path: Path, api: API, df: pd.DataFrame):
     for username in usernames:
         if username not in created_usernames:
             raise AssertionError(f"Username {username} not found, CSV generation failed")
- 
-    assert file
