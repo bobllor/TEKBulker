@@ -98,21 +98,21 @@ class Reader:
             status_code=200
         )
     
-    def modify(self, key: str, value: Any) -> dict[str, Any]:
-        '''Modifies a key with the value.
+    def update(self, key: str, value: Any) -> dict[str, Any]:
+        '''Updates a key with the value.
         
         A dictionary response is generated and returned, indicating the status and message.
         '''
         if key not in self._content:
-            self.logger.error(f"Key {key} does not exist in {self._content} for updating")
-            return utils.generate_response(status="error", message="Failed to modify key", status_code=500)
+            self.logger.error(f"Update failed: key {key} does not exist")
+            return utils.generate_response(status="error", message="Failed to update key", status_code=500)
 
         self._content[key] = value
         self.write(self._content)
 
-        self.logger.info(f"Modify {key} with {value}")
+        self.logger.info(f"Updated {key} with {value}")
 
-        return utils.generate_response(message=f"Successfully modified key {key}", status_code=200)
+        return utils.generate_response(message=f"Successfully updated key {key}", status_code=200)
     
     def delete(self, key: str) -> dict[str, Any]:
         '''Deletes a key from the file.'''

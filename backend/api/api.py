@@ -146,4 +146,4 @@ class API:
         if new_dir == "":
             return
 
-        self.settings.modify("output_dir", new_dir)
+        self.settings.update("output_dir", new_dir)
