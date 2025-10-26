@@ -37,6 +37,18 @@ class API:
         self.opco: Reader = opco_reader
         self.logger: Log = logger or Log()
 
+    def initialization(self) -> dict[str, dict[str, Any]]:
+        '''Returns all Reader values in one dictionary.'''
+        contents: dict[str, Any] = {
+            "excelColumns": self.excel.get_content(),
+            "settings": self.settings.get_content(),
+            "opco": self.opco.get_content(),
+        }
+
+        self.logger.debug(f"Data {contents} initializing")
+
+        return contents
+
     def generate_azure_csv(self, content: GenerateCSVProps | pd.DataFrame) -> dict[str, str]: 
         '''Generates the Azure CSV file for bulk accounts.
         

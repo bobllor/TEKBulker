@@ -105,3 +105,8 @@ def test_get_value(api: API):
     fail_val: Any = api.get_reader_value("non", "settings")
 
     if fail_val != "": raise AssertionError(f"Got value when expecting an empty string")
+
+def test_initialization(api: API):
+    content: dict[str, dict[str, Any]] = api.initialization()
+
+    assert len(content) != 0
