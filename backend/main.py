@@ -4,7 +4,7 @@ from logger import Log
 from support.vars import DEFAULT_HEADER_MAP, DEFAULT_OPCO_MAP, DEFAULT_SETTINGS_MAP
 import webview
 
-EXCEL_FILE: str = 'EXCEL-mapping.json'
+EXCEL_FILE: str = 'excel-mapping.json'
 SETTINGS_FILE: str = 'settings.json'
 OPCO_FILE: str = "opco-mapping.json"
 EXCEL_PATH: str = f'config/{EXCEL_FILE}'
@@ -14,7 +14,7 @@ OPCO_PATH: str = f"config/{OPCO_FILE}"
 if __name__ == '__main__':
     logger: Log = Log()
 
-    excel_reader: Reader = Reader(EXCEL_FILE, defaults=DEFAULT_HEADER_MAP, logger=logger)
+    excel_reader: Reader = Reader(EXCEL_PATH, defaults=DEFAULT_HEADER_MAP, logger=logger)
     settings_reader: Reader = Reader(SETTINGS_PATH, defaults=DEFAULT_SETTINGS_MAP, logger=logger)
     opco_reader: Reader = Reader(OPCO_PATH, defaults=DEFAULT_OPCO_MAP, logger=logger)
 
