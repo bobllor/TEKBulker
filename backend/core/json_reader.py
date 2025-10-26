@@ -26,8 +26,10 @@ class Reader:
             is_test: bool, default False
                 Boolean to indicate if the Reader is a test instance or not.
         '''
-        self.path: Path = Path(path) if isinstance(path, str) else path
-        self._name: str = self.path.name
+        # NOTE: because i code on linux this has to be a string due to a PosixPath issue with pywebview
+        self.path: str = str(path)
+        self._pathpath: Path = Path(path) if isinstance(path, str) else path
+        self._name: str = Path(self.path).name
 
         self.logger: Log = logger or Log()
         self._is_test: bool = is_test
@@ -160,11 +162,11 @@ class Reader:
 
     def _mkfiles(self):
         '''Creates the file, including all directories. If they exist, then this does nothing.'''
-        if not self.path.parent.exists():
-            self.path.parent.mkdir(parents=True, exist_ok=True)
+        if not self._pathpath.parent.exists():
+            self._pathpath.parent.mkdir(parents=True, exist_ok=True)
         
-        if not self.path.exists():
-            self.path.touch()
+        if not self._pathpath.exists():
+            self._pathpath.touch()
             # need to initialize it with a empty data
             with open(self.path, "w") as file:
                 file.write("{}")
