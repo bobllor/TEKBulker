@@ -39,11 +39,14 @@ def api(tmp_path: Path):
     opcos.insert_many(opco_map)
 
     api: API = API(excel_reader=excel, settings_reader=settings, opco_reader=opcos)
+    api.set_output_dir(tmp_path)
 
     yield api
 
 @pytest.fixture
 def df():
     df: pd.DataFrame = pd.read_json(JSON)
+
+    df = df.rename(mapper=lambda x: x.lower(), axis=1)
 
     yield df

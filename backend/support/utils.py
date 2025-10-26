@@ -1,7 +1,5 @@
 import string, re
-import pandas as pd
 from core.names import NameFormatter, NoSpace, Period
-from .vars import AZURE_HEADERS, AZURE_VERSION
 from typing import Literal, Any, Callable
 
 def format_name(name: str) -> str:
@@ -44,6 +42,26 @@ def format_name(name: str) -> str:
         return f'{f_name[0]} {l_name}'
 
     return f'{f_name} {l_name}'
+
+def check_duplicate_names(names: list[str]) -> list[str]:
+    '''Checks a list of names for duplicates, if duplicates are found then a number 
+    is appended to the name.
+
+    The same list will be returned with the modification if it occurred.
+    '''
+    seen_names: dict[str, int] = {}
+    new_names: list[str] = []
+
+    for name in names:
+        if name not in seen_names:
+            seen_names[name] = 0
+        else:
+            seen_names[name] += 1
+            name = name + str(seen_names[name])
+
+        new_names.append(name)
+    
+    return new_names
 
 def generate_response(status: Literal['error', 'success'] = 'success', **kwargs) -> dict[str, Any]:
     '''Generate a response dictionary.

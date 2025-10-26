@@ -96,9 +96,12 @@ class API:
         names: list[str] = parser.get_rows(default_excel_columns['name']) 
         opcos: list[str] = parser.get_rows(default_excel_columns["opco"])
 
+        dupe_names: list[str] = utils.check_duplicate_names(names)
+
         # the mapping of the operating company to their domain name.
         opco_mappings: dict[str, str] = self.opco.get_content()
-        usernames: list[str] = utils.generate_usernames(names, opcos, opco_mappings)
+        # TODO: add formatting style/case/type
+        usernames: list[str] = utils.generate_usernames(dupe_names, opcos, opco_mappings)
 
         writer: AzureWriter = AzureWriter(logger=self.logger)
 
@@ -130,9 +133,7 @@ class API:
         '''
         names: list[str] = []
         opcos: list[str] = []
-        usernames: list[str] = []
 
-        seen_names: dict[str, int] = {}
         opco_mappings: dict[str, str] = self.opco.get_content()
 
         # contains name, opco, and id. id is not relevant to this however.
@@ -141,18 +142,13 @@ class API:
             name: str = utils.format_name(obj["name"])
             opco: str = obj["opco"]
 
-            # assume duplicate names are unique, a number is added to distinguish the username.
-            if name not in seen_names:
-                seen_names[name] = 0
-            else:
-                seen_names[name] = seen_names.get(name) + 1
-
-                name = name + str(seen_names.get(name))
-
             names.append(name)
-            usernames.append(utils.generate_username(name, opco, opco_mappings))
             opcos.append(opco)
+        
+        dupe_names: list[str] = utils.check_duplicate_names(names)
 
+        # TODO: add formatting style/case/type
+        usernames: list[str] = utils.generate_usernames(dupe_names, opcos, opco_mappings)
         passwords: list[str] = [utils.generate_password() for _ in range(len(names))]
 
         writer: AzureWriter = AzureWriter(logger=self.logger)
