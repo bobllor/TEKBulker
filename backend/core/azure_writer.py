@@ -1,5 +1,6 @@
-from typing import Any, Literal
+from typing import Any, Literal, Callable
 from support.vars import AZURE_HEADERS, AZURE_VERSION
+from core.names import NameFormatter, NoSpace, Period
 from core.names import Period
 from logger import Log
 from pathlib import Path
@@ -19,42 +20,25 @@ class AzureWriter:
     
     def set_full_names(self, names: list[str]):
         '''Sets the full names for the data.'''
+        self.logger.info(f"Setting full names")
+        self.logger.debug(f"Full names data: {names}")
         self._headers_data["name"] = names
     
-    def set_usernames(self, names: list[str], *, opcos: list[str], opco_map: dict[str, str]):
-        '''Sets the usernames of the users derived from names. All lists must be the same length and each index
-        are expected to correlate to each other.
+    def set_usernames(self, usernames: list[str]):
+        '''Sets the usernames of the users.
 
         Parameters
         ----------
-            names: list[str]
-                List of names of users.
-            
-            opcos: list[str]
-                List of operating companies.
-
-            opco_map: dict[str, str]
-                Operating company map to generate the username, the list of operating companies
-                are used to generate the domain name with the names list. 
+            usernames: list[str]
+                List of names of usernames.
         '''
-        usernames: list[str] = []
-
-        # TODO: need to set this formatter in the frontend for the class and case_ var
-        case_var: Literal["upper", "lower", "title"] = "title"
-        formatter: Period = Period(case_var)
-        # TODO: create a map of functions for the formatter, also need a variable
-        # to determine which formatting method to choose
-
-        for i, opco in enumerate(opcos):
-            name: str = formatter.replace(names[i])
-            username: str = f"{name}@{opco_map.get(opco.lower(), opco_map['default'])}"
-
-            usernames.append(username)
-        
+        self.logger.info(f"Setting usernames")
+        self.logger.debug(f"Username data: {usernames}")
         self._headers_data["username"] = usernames
     
     def set_passwords(self, passwords: list[str]) -> None:
         '''Sets the passwords of the data.'''
+        self.logger.info(f"Setting passwords")
         self._headers_data["password"] = passwords
     
     def set_block_sign_in(self, capacity: int, blockages: list[str] = []) -> None:
@@ -76,6 +60,7 @@ class AzureWriter:
             for _ in range(capacity - len(blockages)):
                 blockages.append("No")
             
+        self.logger.info(f"Setting block sign in")
         self._headers_data["block_sign_in"] = blockages
     
     def set_names(self, names: list[str]) -> None:
@@ -93,6 +78,8 @@ class AzureWriter:
             first_names.append(first_name)
             last_names.append(last_name)
         
+        self.logger.info(f"Setting first and last names")
+        self.logger.debug(f"Names data: {names}")
         self._headers_data["first_name"] = first_names
         self._headers_data["last_name"] = last_names
     
