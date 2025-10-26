@@ -1,5 +1,6 @@
 import string, re
 import pandas as pd
+from core.names import NameFormatter, NoSpace, Period
 from .vars import AZURE_HEADERS, AZURE_VERSION
 from typing import Literal, Any, Callable
 
@@ -64,36 +65,61 @@ def generate_response(status: Literal['error', 'success'] = 'success', **kwargs)
 
     return res
 
-def generate_username(
-        username: str,
-        *, 
-        func: Callable[[str], str] = None,
-        opco: str = None,
-        opco_map: dict[str, str]) -> str:
-    '''Generates the username for Azure.
+def generate_usernames(
+    names: list[str],
+    opcos: list[str],
+    opco_map: dict[str, str],
+    *, 
+    format_type: Literal["period", "no space"] = "period",
+    format_style: Literal["first last", "f last", "first l"] = "first last",
+    format_case: Literal["title", "lower", "upper"] = "title") -> list[str]:
+    '''Generates a list of formatted usernames for Azure.
     
     Parameters
     ----------
-        username: str
-            The username for the account to be formatted.
+        name: str
+            A list of names for the account to be formatted.
+        
+        opcos: str, default None
+            A list of operating companies for each user, it determines the domain used. If an operating company
+            does not exist in the map, the default value will be used.
 
-        func: Callable[[str], str]
-            A function that takes a string and returns a string, used to format the username.
-        
-        opco: str, default None
-            The operating company of the user, which determines the domain being used. If None is passed,
-            the default key is used defined in the opco_map dictionary.
-        
         opco_map: dict[str, str]
             A dictionary used to get the domain based on the operating company.
+
+        format_type: Literal["period", "no space"], default "period"
+            The username formatting type, it replaces spaces between the names with a specific character.
+            By default it is "period", the specific character being a period (`"."`).
+
+        format_style: Literal["first last", "f last", "first l"], default "first last"
+            The username formatting style, this is the final output of the username. For example, the
+            "f last" option results in "J.Doe". By default it is "first last".
+        
+        format_case: Literal["title", "lower", "upper"], default "title"
+            Determines the case style of the username. By default it is title case: "first.last" ->
+            "First.Last".
     '''
-    if func:
-        username: str = func(username)
-    
-    # default is user defined
-    default_opco: str = opco_map.get('default', 'needs-a-default-value.com')
-    
-    return f'{username}@{opco_map.get(opco, default_opco)}'
+    format_dict: dict[str, NameFormatter] = {
+        "period": Period,
+        "no space": NoSpace
+    }
+    formatter: NameFormatter = format_dict[format_type](format_case)
+    style_dict: dict[str, Callable[[str], str]] = {
+        "first last": formatter.replace,
+        "f last": formatter.f_last,
+        "first l": formatter.first_l,
+    }
+
+    default_opco: str = opco_map.get('default', "MISSING_DEFAULT.com")
+    usernames: list[str] = []
+
+    for i, name in enumerate(names):
+        name = name.strip()
+        username: str = style_dict[format_style](name)
+
+        usernames.append(f'{username}@{opco_map.get(opcos[i], default_opco)}')
+
+    return usernames    
 
 def get_date(date_format: str = '%Y-%m-%dT%H%M%S') -> str:
     '''Get the date, by default it returns the format YY-MM-DD-HHMMSS'''
@@ -102,12 +128,6 @@ def get_date(date_format: str = '%Y-%m-%dT%H%M%S') -> str:
     date: str = datetime.today().strftime(date_format)
 
     return date
-
-def generate_name(name: str) -> tuple[str]:
-    '''Generate the names for the user.'''
-    f_name, l_name = name.split()
-
-    return f_name, l_name
 
 def generate_password(max_length: int = 20) -> str:
     '''Random password generation.
