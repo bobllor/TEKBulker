@@ -77,7 +77,7 @@ def generate_usernames(
     
     Parameters
     ----------
-        name: str
+        names: str
             A list of names for the account to be formatted.
         
         opcos: str, default None
@@ -120,6 +120,57 @@ def generate_usernames(
         usernames.append(f'{username}@{opco_map.get(opcos[i], default_opco)}')
 
     return usernames    
+
+def generate_username(
+    name: str,
+    opco: str,
+    opco_map: dict[str, str],
+    *, 
+    format_type: Literal["period", "no space"] = "period",
+    format_style: Literal["first last", "f last", "first l"] = "first last",
+    format_case: Literal["title", "lower", "upper"] = "title") -> list[str]:
+    '''Generates a list of formatted usernames for Azure.
+    
+    Parameters
+    ----------
+        name: str
+            A name for the account to be formatted.
+        
+        opcos: str, default None
+            An operating company for the user, it determines the domain used. If an operating company
+            does not exist in the map, the default value will be used.
+
+        opco_map: dict[str, str]
+            A dictionary used to get the domain based on the operating company.
+
+        format_type: Literal["period", "no space"], default "period"
+            The username formatting type, it replaces spaces between the names with a specific character.
+            By default it is "period", the specific character being a period (`"."`).
+
+        format_style: Literal["first last", "f last", "first l"], default "first last"
+            The username formatting style, this is the final output of the username. For example, the
+            "f last" option results in "J.Doe". By default it is "first last".
+        
+        format_case: Literal["title", "lower", "upper"], default "title"
+            Determines the case style of the username. By default it is title case: "first.last" ->
+            "First.Last".
+    '''
+    format_dict: dict[str, NameFormatter] = {
+        "period": Period,
+        "no space": NoSpace
+    }
+    formatter: NameFormatter = format_dict[format_type](format_case)
+    style_dict: dict[str, Callable[[str], str]] = {
+        "first last": formatter.replace,
+        "f last": formatter.f_last,
+        "first l": formatter.first_l,
+    }
+
+    default_opco: str = opco_map.get('default', "MISSING_DEFAULT.com")
+    name = name.strip()
+    username: str = style_dict[format_style](name)
+
+    return f'{username}@{opco_map.get(opco, default_opco)}'
 
 def get_date(date_format: str = '%Y-%m-%dT%H%M%S') -> str:
     '''Get the date, by default it returns the format YY-MM-DD-HHMMSS'''
