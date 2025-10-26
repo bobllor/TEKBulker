@@ -14,6 +14,20 @@ export function toaster(msg: string, type: "error" | "info" | "success" | "warni
     )
 }
 
+export function toastSuccess(msg: string, duration: number = 3000): void{
+    toast(
+        msg,
+        {
+            position: "top-center",
+            type: "success",
+            closeOnClick: true, 
+            pauseOnHover: false,
+            pauseOnFocusLoss: false,
+            autoClose: duration,
+        }
+    )
+}
+
 export function toastError(msg: string, duration: number = 3000){
     toast(
         msg,
