@@ -35,7 +35,8 @@ export default function FileEntry({file}: {file: UploadedFilesProps}): JSX.Eleme
 
     return (
         <>
-            <div className="px-5 py-2 default-shadow rounded-xl w-[90%] flex justify-between">
+            <div className={`px-5 py-2 default-shadow rounded-xl w-[90%] flex justify-between
+                ${file.status == "none" ? "" : file.status == "success" ? "bg-green-300" : "bg-red-300"}`}>
                 <div
                 title={file.name}
                 ref={divRef}
