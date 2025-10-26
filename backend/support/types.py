@@ -5,6 +5,11 @@ class GenerateCSVProps(TypedDict):
     fileName: str
     b64: str
 
+class ManualCSVProps(TypedDict):
+    name: str
+    opco: str
+    id: str
+
 class AzureHeaders(TypedDict):
     name: str
     username: str
