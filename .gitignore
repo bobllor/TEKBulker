@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# files
+*.xlsx
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -23,6 +26,11 @@ dist-ssr
 *.sln
 *.sw?
 
+# files
+*.xlsx
+config
+
 # python
 __pycache__/
 backend/assets/
+.venv

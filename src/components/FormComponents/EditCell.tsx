@@ -1,7 +1,7 @@
 import { JSX, useEffect, useRef } from "react";
 import { ManualData } from "./manualUtils/types";
 import toast from "react-hot-toast";
-import { toastError } from "../../toastUtils";
+import { toaster } from "../../toastUtils";
 
 /** Component of ManualTable that reveals an edit box for a selected cell. */
 export default function EditCell({id, stringVal, setEditCell, manData}: EditCellProps): JSX.Element{
@@ -31,7 +31,7 @@ export default function EditCell({id, stringVal, setEditCell, manData}: EditCell
                         const loweredInputVal: string = inputVal.toLowerCase().trim();
 
                         if(inputVal.trim() == ''){
-                            toast.error('Cannot have an empty input for the name field.', {duration: 3000});
+                            toast.error('Empty input for the Name field found.', {duration: 3000});
                             return;
                         }
                         
@@ -46,7 +46,7 @@ export default function EditCell({id, stringVal, setEditCell, manData}: EditCell
                             const columnVal: string = filteredObj.opco!.toLowerCase();
 
                             if(nameVal == loweredInputVal || columnVal == loweredInputVal){
-                                toastError('Cannot have duplicate values for the fields.');
+                                toaster('Duplicate values in the fields.', "error");
                                 return;
                             }   
                             

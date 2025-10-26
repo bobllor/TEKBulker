@@ -6,16 +6,17 @@ import { FormStateProps } from "./FormComponents/manualUtils/types";
 
 const buttons: Array<{label: string, url: string}> = [
     {label: 'Home', url: '/'},
-    {label: 'Manual', url: '/manual'}
+    {label: 'Custom', url: '/custom'}
 ]
 
-export default function Buttons({formState}: {formState: FormStateProps}
+export default function Navigation({formState}: {formState: FormStateProps}
     ): JSX.Element{
     let navigate: NavigateFunction = useNavigate();
 
     const { revealModal } = useModalContext();
 
     async function clickWrapper(url: string): Promise<void>{
+      // FIXME: when its ready to be packaged into an app this has to be changed.
       if(window.location.pathname == url) return;
 
       // only used if a form has been edited before navigation

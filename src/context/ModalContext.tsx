@@ -13,7 +13,7 @@ const ModalContext = createContext<ModalProps>({
 
 export const useModalContext = () => useContext(ModalContext);
 
-export function ModalProvider({ children }): JSX.Element {
+export function ModalProvider({ children }: {children: JSX.Element}): JSX.Element {
     const [showModal, setShowModal] = useState<boolean>(false);
     const [modalPromise, setModalPromise] = useState<((T: boolean) => void)|null>(null);
     const [modalText, setModalText] = useState<string>('');

@@ -1,6 +1,7 @@
+import React from 'react';
 import { toastError, toastSuccess } from '../../../toastUtils.ts';
 import '../../../types.ts';
-import { UploadedFilesProps } from './types.ts';
+import { UploadedFilesProps, FileStatus, GenerateCSVProps } from './types.ts';
 
 //** Updates the uploaded files state with the event file from the input element. */
 export function onFileChange(
@@ -13,7 +14,15 @@ export function onFileChange(
 
         const fileName: string = file.name;
 
-        setUploadedFiles(prev => [...prev, {id: id, name: fileName, file: file}]);
+        if(fileName.split(".").at(-1)?.toLowerCase() != 'xlsx'){
+            toastError("Only Excel files (.xlsx) are accepted.");
+            return;
+        }
+
+        // some weird thing with input elements. if i recall this was an issue in my last project too.
+        event.currentTarget.value = "";
+
+        setUploadedFiles(prev => [...prev, {id: id, name: fileName, file: file, status: "none"}]);
 }
 
 //** Reads a file and generates a Base64 string for decoding. */
@@ -34,8 +43,16 @@ async function getBase64(file: File): Promise<string | ArrayBuffer | null>{
 //** Upload the file state and and generate the CSV for Azure. */
 export async function uploadFile(
     event: React.SyntheticEvent<HTMLFormElement>,
-    fileArr: Array<UploadedFilesProps>): Promise<void>{
+    fileArr: Array<UploadedFilesProps>,
+    setFileArr: React.Dispatch<React.SetStateAction<Array<UploadedFilesProps>>>): Promise<void>{
     event.preventDefault();
+
+    if(fileArr.length == 0){
+        toastError("No files were submitted.");
+        return;
+    }
+
+    const b64Arr: Array<GenerateCSVProps> = [];
 
     for(const file of fileArr){
         const fileExtension: string|undefined = file.file?.name.split('.').at(-1);
@@ -44,24 +61,42 @@ export async function uploadFile(
             toastError(`Only Excel files (.xlsx) are supported, got file type .${fileExtension}.`);
             continue;
         }
+        
+        const b64: string|ArrayBuffer|null = await getBase64(file.file);
 
-        // this will probably be moved out, depending on what i do with the array.
+        b64Arr.push({fileName: file.name, b64: b64 as string, id: file.id})
+    }
+
+    for(const b64_ele of b64Arr){
+        let status: FileStatus = "success";
         try{
-            const b64: string|ArrayBuffer|null = await getBase64(file.file);
-            
-            // TODO: add alerts with the response from the api
+            // TODO: use the loop above to do this.
+            // YOU are going to implement a UI/UX feature here to show success/fails on each
+            // file uploaded from this method call.
             const res: {
                 status: string, message: string
-            } = await window.pywebview.api.generate_azure_csv(b64, file.name);
+            } = await window.pywebview.api.generate_azure_csv(b64_ele);
             
             if(res.status == 'success'){
                 toastSuccess(res.message);
             }else{
                 toastError(res.message);
+                status = "error";
             }
         }catch(error){
-            toastError(error);
+            if(error instanceof Error){
+                toastError(error.message);
+                status = "error";
+            }
         }
+
+        setFileArr(prev => prev.map(p => {
+            if(p.id == b64_ele.id){
+                return {...p, status: status};
+            } 
+            
+            return p;
+        }));
     }
 }
 
@@ -74,7 +109,7 @@ export function onDragDrop(event: DragEvent,
 
     if(!file) return;
 
-    setUploadedFiles(prev => [...prev, {id: id, name: file.name, file: file}]);
+    setUploadedFiles(prev => [...prev, {id: id, name: file.name, file: file, status: "none"}]);
 }
 
 //** Removes an object from the uploaded files state on a matching ID. */
