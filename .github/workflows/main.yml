@@ -1,0 +1,23 @@
+name: backend-tester
+
+on:
+  push:
+    paths:
+      - '**.py'
+  pull_request:
+    paths:
+        - '**.py'
+jobs:
+  build:
+    name: Python Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: python/setup-python@v6
+        with:
+          python-version: '>=3.11 <3.14'
+      - name: Setup
+        run: pip install -r requirements.txt
+      - name: pytest
+        run: |
+          pytest -s
