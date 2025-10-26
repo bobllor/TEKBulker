@@ -1,7 +1,7 @@
 import React from 'react';
-import { toaster, toastError } from '../../../toastUtils.ts';
+import { toastError, toastSuccess } from '../../../toastUtils.ts';
 import '../../../types.ts';
-import { UploadedFilesProps } from './types.ts';
+import { UploadedFilesProps, FileStatus, GenerateCSVProps } from './types.ts';
 
 //** Updates the uploaded files state with the event file from the input element. */
 export function onFileChange(
@@ -22,7 +22,7 @@ export function onFileChange(
         // some weird thing with input elements. if i recall this was an issue in my last project too.
         event.currentTarget.value = "";
 
-        setUploadedFiles(prev => [...prev, {id: id, name: fileName, file: file}]);
+        setUploadedFiles(prev => [...prev, {id: id, name: fileName, file: file, status: "none"}]);
 }
 
 //** Reads a file and generates a Base64 string for decoding. */
@@ -43,7 +43,8 @@ async function getBase64(file: File): Promise<string | ArrayBuffer | null>{
 //** Upload the file state and and generate the CSV for Azure. */
 export async function uploadFile(
     event: React.SyntheticEvent<HTMLFormElement>,
-    fileArr: Array<UploadedFilesProps>): Promise<void>{
+    fileArr: Array<UploadedFilesProps>,
+    setFileArr: React.Dispatch<React.SetStateAction<Array<UploadedFilesProps>>>): Promise<void>{
     event.preventDefault();
 
     if(fileArr.length == 0){
@@ -51,7 +52,7 @@ export async function uploadFile(
         return;
     }
 
-    const b64Arr: Array<{fileName: string, b64: string}> = [];
+    const b64Arr: Array<GenerateCSVProps> = [];
 
     for(const file of fileArr){
         const fileExtension: string|undefined = file.file?.name.split('.').at(-1);
@@ -63,26 +64,39 @@ export async function uploadFile(
         
         const b64: string|ArrayBuffer|null = await getBase64(file.file);
 
-        b64Arr.push({fileName: file.name, b64: b64 as string})
+        b64Arr.push({fileName: file.name, b64: b64 as string, id: file.id})
     }
 
-    try{
-        // TODO: use the loop above to do this.
-        // YOU are going to implement a UI/UX feature here to show success/fails on each
-        // file uploaded from this method call.
-        const res: {
-            status: string, message: string
-        } = await window.pywebview.api.generate_azure_csv(b64Arr);
-        
-        if(res.status == 'success'){
-            toaster(res.message, "success");
-        }else{
-            toastError(res.message);
+    for(const b64_ele of b64Arr){
+        let status: FileStatus = "success";
+        try{
+            // TODO: use the loop above to do this.
+            // YOU are going to implement a UI/UX feature here to show success/fails on each
+            // file uploaded from this method call.
+            const res: {
+                status: string, message: string
+            } = await window.pywebview.api.generate_azure_csv(b64_ele);
+            
+            if(res.status == 'success'){
+                toastSuccess(res.message);
+            }else{
+                toastError(res.message);
+                status = "error";
+            }
+        }catch(error){
+            if(error instanceof Error){
+                toastError(error.message);
+                status = "error";
+            }
         }
-    }catch(error){
-        if(error instanceof Error){
-            toastError(error.message);
-        }
+
+        setFileArr(prev => prev.map(p => {
+            if(p.id == b64_ele.id){
+                return {...p, status: status};
+            } 
+            
+            return p;
+        }));
     }
 }
 
@@ -95,7 +109,7 @@ export function onDragDrop(event: DragEvent,
 
     if(!file) return;
 
-    setUploadedFiles(prev => [...prev, {id: id, name: file.name, file: file}]);
+    setUploadedFiles(prev => [...prev, {id: id, name: file.name, file: file, status: "none"}]);
 }
 
 //** Removes an object from the uploaded files state on a matching ID. */

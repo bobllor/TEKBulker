@@ -7,7 +7,7 @@ import FileEntry from "./FileEntry";
 const widthStyle = "w-160";
 
 export default function UploadForm({inputFileRef, FileUpload, showDrop}){
-    const { uploadedFiles } = useFileContext();
+    const { uploadedFiles, setUploadedFiles } = useFileContext();
 
     return (
         <>
@@ -34,7 +34,7 @@ export default function UploadForm({inputFileRef, FileUpload, showDrop}){
                 </>
                 <form 
                 className={`flex flex-col justify-center items-center gap-3 p-5 ${!showDrop && "z-5"}`}
-                onSubmit={(e) => uploadFile(e, uploadedFiles)}>
+                onSubmit={(e) => uploadFile(e, uploadedFiles, setUploadedFiles)}>
                     <div>
                         <Button text={"Submit"} paddingX={10} paddingY={3} />
                     </div>
