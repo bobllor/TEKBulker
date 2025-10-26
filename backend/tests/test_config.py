@@ -66,7 +66,7 @@ def test_validate_config(reader: Reader):
 def test_find_key(reader: Reader):
     key: str = "nest5"
     expected_val: str = "lopem isum"
-    reader.insert("nest1", {"nest2": {"nest3": {"nest4": {"padding": None, "nest5": expected_val}}}})
+    reader.insert("nest1", {"nest2": {"nest3": {"nest4": {"padding": None, key: expected_val}}}})
 
     val: Any = reader.get(key)
 

@@ -8,7 +8,8 @@ def randomizer(_: str, *args) -> str:
 
     return args[random.randint(0, size - 1)]
 
-def get_csv_bytesio(path: Path | str) -> BytesIO:
+def get_bytesio(path: Path | str) -> BytesIO:
+    '''Reads from a file and return the bytes wrapped with BytesIO.'''
     with open(path, "r") as file:
         content: list[str] = file.readlines()
 

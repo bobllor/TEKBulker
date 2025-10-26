@@ -107,13 +107,19 @@ def test_write_new_csv(tmp_path: Path):
         "company three": "company.three.nhs.gov"
     }
 
-    writer: AzureWriter = AzureWriter()
 
     names: list[str] = parser.get_rows(DEFAULT_HEADER_MAP["name"])
+    opcos: list[str] = parser.get_rows(DEFAULT_HEADER_MAP["opco"])
     passwords: list[str] = [utils.generate_password() for _ in range(len(names))]
 
+    usernames: list[str] = utils.generate_usernames(
+        names, opcos, opco_map
+    )
+
+    writer: AzureWriter = AzureWriter()
+
     writer.set_full_names(names)
-    writer.set_usernames(names, opcos=parser.get_rows(DEFAULT_HEADER_MAP["opco"]), opco_map=opco_map)
+    writer.set_usernames(usernames)
     writer.set_passwords(passwords)
     writer.set_block_sign_in(len(names))
     writer.set_names(names)
@@ -121,7 +127,7 @@ def test_write_new_csv(tmp_path: Path):
     writer.write(tmp_path / "out.csv")
 
     output: Path = tmp_path / "out.csv"
-    csv_bytes: BytesIO = ttils.get_csv_bytesio(output)
+    csv_bytes: BytesIO = ttils.get_bytesio(output)
     
     df: pd.DataFrame = pd.read_csv(csv_bytes)
 
