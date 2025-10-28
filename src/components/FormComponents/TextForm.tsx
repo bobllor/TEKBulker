@@ -5,7 +5,7 @@ export default function TextForm(): JSX.Element{
     return (
         <>
             <div
-            className="absolute bg-black w-100 h-100">
+            className="bg-black w-100 h-100">
 
             </div>
         </>
