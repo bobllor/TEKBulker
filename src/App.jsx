@@ -8,7 +8,6 @@ import Modal from "./components/Modal";
 import CogWheelIcon from "./svgs/CogWheelIcon";
 import { useModalContext } from "./context/ModalContext";
 import { ToastContainer } from "react-toastify";
-import BackgroundBlur from "./components/ui/BackgroundBlur";
 
 const fullPageStyle = 'h-screen w-screen flex flex-col justify-center items-center overflow-hidden relative p-3'
 
@@ -39,8 +38,7 @@ export default function App() {
         {showModal && <Modal />}
         {location.state?.previousLocation &&
           <Routes>
-            <Route path="/settings" element={<Settings blur={<BackgroundBlur />} 
-            setShowSetting={setShowSetting}/>}/>
+            <Route path="/settings" element={<Settings setShowSetting={setShowSetting} />}/>
           </Routes>
         }
         <div
@@ -58,8 +56,7 @@ export default function App() {
             <Route path='/' element={<Home />} />
             <Route path='/custom' element={<Custom style={fullPageStyle} 
               formState={{state: formEdited, func: setFormEdited}}/>} />
-            <Route path="/settings" element={<Settings blur={<BackgroundBlur />} 
-            setShowSetting={setShowSetting}/>}/>
+            <Route path="/settings" element={<Settings setShowSetting={setShowSetting}/>}/>
         </Routes>
       </div>
     </>

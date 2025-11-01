@@ -1,4 +1,5 @@
 import { JSX } from "react";
+import { ButtonProps } from "./types";
 
 /**
  * A submit button component. 
@@ -17,12 +18,4 @@ export default function Button(
             type="submit">{text}</button>
         </>
     )
-}
-
-type ButtonProps = {
-    text: string,
-    bg?: string,
-    bgHover?: string,
-    paddingX: number,
-    paddingY: number,
 }
