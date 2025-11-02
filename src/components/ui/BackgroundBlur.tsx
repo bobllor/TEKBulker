@@ -1,9 +1,15 @@
-import { JSX } from "react";
+import React, { JSX, useRef } from "react";
+import { useDismissRoute } from "../../hookUtils";
 
-export default function BackgroundBlur(): JSX.Element{
+export default function BackgroundBlur({setComponentState}: {setComponentState: React.Dispatch<React.SetStateAction<boolean>>}): JSX.Element{
+    const bgDivRef = useRef<HTMLDivElement>(null);
+
+    useDismissRoute(bgDivRef, setComponentState);
+
     return (
         <>
-            <div className="bg-gray-300/60 blur-lg absolute w-full h-full" />
+            <div ref={bgDivRef}
+            className="bg-gray-300/40 backdrop-blur-2xl absolute w-full h-full z-3" />
         </>
     )    
 }
