@@ -45,6 +45,8 @@ export default function App() {
         className={`absolute flex justify-center items-center rounded-2xl p-1 left-0 bottom-0 m-10 z-3 
         hover:bg-gray-500 ${showSetting && "pointer-events-none"}`}>
           <button
+          className="outline-none"
+          tabIndex={-1}
           onClick={() => navigate("/settings", {replace: true, state: {previousLocation: location}})}>
             <CogWheelIcon width="32px" height="32px" stroke="black" />
           </button>
