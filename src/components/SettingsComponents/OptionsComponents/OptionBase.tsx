@@ -13,7 +13,7 @@ export default function OptionBase({options, title}: OptionBaseProps): JSX.Eleme
             {options.map((opt, i) => (
                 <div 
                 key={i}
-                className="flex justify-between items-center border-b-2 m-2 p-2">
+                className="flex justify-between items-center border-b-1 m-2 p-2 text-sm">
                     {opt.label} 
                 </div>
             ))}

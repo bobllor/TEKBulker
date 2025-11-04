@@ -16,7 +16,7 @@ export default function Settings({setShowSetting}:
     return (
         <>
             <div
-            className={`absolute w-150 h-100 z-4 bg-white settings-modal-border`}> 
+            className={`absolute w-200 h-150 z-4 bg-white settings-modal-border`}> 
                 <Navigation buttons={buttons} 
                 selectedSetting={selectedSetting} setSelectedSetting={setSelectedSetting} />
                 <Options />
