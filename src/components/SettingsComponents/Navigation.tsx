@@ -1,29 +1,24 @@
-import { JSX, useState } from "react";
+import React, { JSX, useState } from "react";
+import { SettingsButton } from "./types";
+import Button from "./NavigationComponents/Button";
 
-const buttons: Array<SettingsButton> = [
-    {label: "General"}
-]
-
-export default function Navigation(): JSX.Element{
-    // by default it will always be general
-    const [selectedSetting, setSelectedSetting] = useState(buttons[0].label);
-    
+export default function Navigation({buttons, selectedSetting, setSelectedSetting}: NavigationProps): JSX.Element{
     return (
-        <>
-            <div className={`h-full w-[35%] bg-gray-500/60 absolute 
-            settings-left-panel p-2`}>
-                {buttons.map((ele) => (
-                    <div className="w-full h-8 rounded-xl hover:bg-gray-300 flex items-center p-3">
-                        <span className="flex items-center text-xl">
-                            {ele.label}
-                        </span>
-                    </div>
-                ))}
-            </div>
-        </>
+        <div className={`h-full w-[35%] bg-gray-500/60 absolute 
+        settings-left-panel p-2`}>
+            {buttons.map((ele, i) => (
+                <React.Fragment
+                key={i}>
+                    <Button opts={ele}
+                    selectedSetting={selectedSetting} setSelectedSetting={setSelectedSetting} /> 
+                </React.Fragment>
+            ))}
+        </div>
     )
 }
 
-type SettingsButton = {
-    label: string,
+type NavigationProps = {
+    buttons: Array<SettingsButton>,
+    selectedSetting: string,
+    setSelectedSetting: React.Dispatch<React.SetStateAction<string>>,
 }
