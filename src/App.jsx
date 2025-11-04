@@ -8,6 +8,8 @@ import Modal from "./components/Modal";
 import CogWheelIcon from "./svgs/CogWheelIcon";
 import { useModalContext } from "./context/ModalContext";
 import { ToastContainer } from "react-toastify";
+import General from "./components/SettingsComponents/OptionsComponents/General";
+import Mapping from "./components/SettingsComponents/OptionsComponents/Mapping";
 
 const fullPageStyle = 'h-screen w-screen flex flex-col justify-center items-center overflow-hidden relative p-3'
 
@@ -38,7 +40,10 @@ export default function App() {
         {showModal && <Modal />}
         {location.state?.previousLocation &&
           <Routes>
-            <Route path="/settings" element={<Settings setShowSetting={setShowSetting} />}/>
+            <Route path="settings" element={<Settings setShowSetting={setShowSetting} />}> 
+              <Route index element={<General />} />
+              <Route path="mapping" element={<Mapping />} />
+            </Route>
           </Routes>
         }
         <div
@@ -56,9 +61,9 @@ export default function App() {
         </div>
         <Routes location={location.state?.previousLocation || location}>
             <Route path='/' element={<Home />} />
-            <Route path='/custom' element={<Custom style={fullPageStyle} 
+            <Route path='custom' element={<Custom style={fullPageStyle} 
               formState={{state: formEdited, func: setFormEdited}}/>} />
-            <Route path="/settings" element={<Settings setShowSetting={setShowSetting}/>}/>
+            <Route path="settings" element={<Settings setShowSetting={setShowSetting} />} />
         </Routes>
       </div>
     </>
