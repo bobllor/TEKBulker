@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { NavigateFunction, useNavigate } from "react-router";
+import { NavigateFunction, useLocation, useNavigate } from "react-router";
 
 /**
  * Dismisses a component by using an HTML element for listening and
@@ -16,12 +16,13 @@ export function useDismissRoute(
     setShowComponent: React.Dispatch<React.SetStateAction<boolean>>,
 ): void{
     const navigate: NavigateFunction = useNavigate()
+    let location = useLocation();
     useEffect(() => {
         const element = targetRef.current;
         if(!element) return;
 
         const dismiss = () => {
-            navigate("/");
+            navigate(location.state?.previousLocation || "/");
             setShowComponent(false);
         }
         const onClick = (e: MouseEvent) => {
