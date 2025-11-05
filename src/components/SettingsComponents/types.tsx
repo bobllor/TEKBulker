@@ -6,10 +6,11 @@ export type SettingsButton = {
 }
 
 export type OptionProps = {
-    label: string, // the key or opton to be displayed
-    func: CallableFunction, // function that activates after a setting change
+    label: string, // the option to be displayed
+    func: () => void, // function that activates after a setting change
     type: "button" | "slider" | "text", // the value that will be used with func
     element?: React.ReactElement, // if given, it will display next to the label in HTML
+    elementName?: string, // used for naming the HTML element in the form, it is used as an arg in the function call
 }
 
 export type OptionBaseProps = {
