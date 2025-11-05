@@ -183,6 +183,10 @@ class API:
         
         return val
     
+    def get_reader_content(self, reader: Literal["settings", "opco", "excel"]) -> dict[str, Any]:
+        '''Gets the data of the Reader.'''
+        return self.readers[reader].get_content()
+    
     def update_key(self, reader_type: Literal["settings", "opco", "excel"], key: str, value: Any) -> dict[str, Any]:
         '''Updates a key from the given value.'''
         reader: Reader = self.readers[reader_type]

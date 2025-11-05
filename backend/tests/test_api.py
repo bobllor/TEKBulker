@@ -209,6 +209,21 @@ def test_update_key(api: API):
 
     assert prev_val != new_val and new_val == var
 
+def test_update_default_key(api: API):
+    prev_val: str = api.get_reader_value("opco", "default")
+
+    var: str = "NEW DEFAULT"
+    res: dict[str, Any] = api.update_key("opco", "default", var)
+
+    new_val: str = api.get_reader_value("opco", "default")
+
+    assert res["status"] != "error" and prev_val != new_val and new_val == var
+
+def test_get_content(api: API):
+    data: dict[str, Any] = api.get_reader_content("opco")
+
+    assert data == api.opco.get_content()
+
 def test_initialization(api: API):
     content: dict[str, dict[str, Any]] = api.initialization()
 
