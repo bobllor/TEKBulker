@@ -1,4 +1,4 @@
-import React from "react"
+import { JSX } from "react"
 
 export type SettingsButton = {
     label: string,
@@ -7,10 +7,9 @@ export type SettingsButton = {
 
 export type OptionProps = {
     label: string, // the option to be displayed
-    func: () => void, // function that activates after a setting change
     type: "button" | "slider" | "text", // the value that will be used with func
-    element?: React.ReactElement, // if given, it will display next to the label in HTML
-    elementName?: string, // used for naming the HTML element in the form, it is used as an arg in the function call
+    element: JSX.Element, // the element to display after the label. this should be related to the backend call
+    optLabel?: JSX.Element // an optional string that is displayed right next to the label.
 }
 
 export type OptionBaseProps = {

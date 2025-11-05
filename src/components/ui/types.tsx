@@ -1,3 +1,5 @@
+import React from "react"
+
 export type ButtonProps = {
     text: string,
     bg?: string,
@@ -5,4 +7,9 @@ export type ButtonProps = {
     paddingX: number,
     paddingY: number,
     func?: () => any,
+}
+
+export type SliderButtonProps = {
+    status: boolean,
+    statusSetter: React.Dispatch<React.SetStateAction<boolean>>,
 }

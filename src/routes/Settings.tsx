@@ -6,7 +6,7 @@ import { SettingsButton } from "../components/SettingsComponents/types";
 
 const buttons: Array<SettingsButton> = [
     {label: "General", url: ""},
-    {label: "Headers Mapping", url: "headers-mapping"}
+    {label: "Headers", url: "headers-mapping"}
 ]
 
 export default function Settings({setShowSetting}: 
