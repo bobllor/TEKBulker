@@ -1,11 +1,12 @@
 import { JSX } from "react";
-import { OptionBaseProps, OptionProps } from "../types";
+import { OptionProps, ReaderType } from "../types";
 import OptionBase from "./OptionBase";
 import { onSubmitText } from "../functions";
 
+const readerType: ReaderType = "excel";
 const TextComponent = ({name}: {name: string}) => (
     <form
-    onSubmit={e => onSubmitText(e, "excel")}>
+    onSubmit={e => onSubmitText(e, readerType)}>
         <input
         name={name}
         className="border-2 rounded-xl py-1 px-2 outline-none"
@@ -14,7 +15,6 @@ const TextComponent = ({name}: {name: string}) => (
 )
 
 const title: string = "Headers";
-const readerType: OptionBaseProps["readerType"] = "excel";
 const options: Array<OptionProps> = [
     {label: "Name", type: "text", element: <TextComponent name={"name"} />},
     {label: "Operating Company", type: "text", element: <TextComponent name={"opco"} />},
@@ -23,7 +23,7 @@ const options: Array<OptionProps> = [
 export default function HeadersMapping(): JSX.Element{
     return (
         <>
-            <OptionBase options={options} title={title} readerType={readerType} />
+            <OptionBase options={options} title={title} />
         </>
     )
 }

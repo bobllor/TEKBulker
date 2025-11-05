@@ -1,6 +1,5 @@
-import React, { JSX } from "react";
+import { JSX } from "react";
 import { OptionBaseProps } from "../types";
-import SliderButton from "../../ui/SliderButton";
 
 
 export default function OptionBase({options, title}: OptionBaseProps): JSX.Element{

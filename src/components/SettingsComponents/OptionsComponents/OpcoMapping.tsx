@@ -1,17 +1,28 @@
 import { JSX, useState } from "react";
-import { OptionProps } from "../types";
+import { OpcoMap, OptionProps } from "../types";
 import OptionBase from "./OptionBase";
+import { useOpcoInit } from "../hooks";
 
 const title: string = "Operating Companies";
 
 export default function OpcoMapping(): JSX.Element{
-    // TODO: use context to load operating companies from backend
-    // NOTES: how do i approach this?
-    const [opcoOptions, setOpcoOptions] = useState<Array<OptionProps>>([]);
+    const [opcoOptions, setOpcoOptions] = useState<Array<OpcoMap>>([]);
+
+    // NOTE: strict mode renders this twice.
+    useOpcoInit(setOpcoOptions);
 
     return (
         <>
-            <OptionBase options={opcoOptions} title={title} />
+            {opcoOptions.length == 0 
+                ? <div>NOT FOUND</div>
+                :
+                opcoOptions.map((opco, i) => (
+                    <div
+                    key={i}>
+                        {opco.value}
+                    </div>
+                ))
+            }
         </>
     )
 }
