@@ -183,6 +183,16 @@ class API:
         
         return val
     
+    def update_key(self, key: str, value: Any) -> dict[str, Any]:
+        '''Updates a key from the given value.'''
+        self.logger.info(f"Starting key update with key {key} and value {value}")
+
+        print(self.excel.get(key))
+
+        #res: dict[str, Any] = self.excel.update(key, value)
+
+        #print(res)
+    
     def set_output_dir(self, dir_: Path | str = None) -> dict[str, str]:
         '''Update the output directory.'''
         from tkinter.filedialog import askdirectory
