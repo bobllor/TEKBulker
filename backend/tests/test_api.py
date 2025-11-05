@@ -184,17 +184,30 @@ def test_manual_generate_csv_dupe_names(tmp_path: Path, api: API, df: pd.DataFra
             raise AssertionError(f"Name {name} does not match base name {names[i]}") 
 
 def test_get_value(api: API):
-    excel_val: Any = api.get_reader_value("name", "excel")
-    settings_val: Any = api.get_reader_value("output_dir", "settings")
-    opco_val: Any = api.get_reader_value("company one", "opco")
+    excel_val: Any = api.get_reader_value("excel", "name")
+    settings_val: Any = api.get_reader_value("settings", "output_dir")
+    opco_val: Any = api.get_reader_value("opco", "company one")
 
     for val in [excel_val, settings_val, opco_val]:
         if val == "":
             raise AssertionError("Got empty key")
     
-    fail_val: Any = api.get_reader_value("non", "settings")
+    fail_val: Any = api.get_reader_value("settings", "non")
 
     if fail_val != "": raise AssertionError(f"Got value when expecting an empty string")
+
+def test_update_key(api: API):
+    prev_val: str = api.get_reader_value("excel", "name")
+    
+    var: str = "CHANGED VALUE"
+    res: dict[str, Any] = api.update_key("excel", "name", var)
+
+    if res["status"] == "error":
+        raise AssertionError(f"Failed to update key: {res}")
+    
+    new_val: str = api.get_reader_value("excel", "name")
+
+    assert prev_val != new_val and new_val == var
 
 def test_initialization(api: API):
     content: dict[str, dict[str, Any]] = api.initialization()

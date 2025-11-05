@@ -37,6 +37,12 @@ class API:
         self.opco: Reader = opco_reader
         self.logger: Log = logger or Log()
 
+        self.readers: dict[str, Reader] = {
+            "settings": self.settings,
+            "opco": self.opco,
+            "excel": self.excel,
+        }
+
     def initialization(self) -> dict[str, dict[str, Any]]:
         '''Returns all Reader values in one dictionary.'''
         contents: dict[str, Any] = {
@@ -112,9 +118,9 @@ class API:
         writer.set_passwords([utils.generate_password(20) for _ in range(len(names))])
 
         csv_name: str = f"{utils.get_date()}-az-bulk.csv"
-        writer.write(Path(self.get_reader_value("output_dir", "settings")) / csv_name)
+        writer.write(Path(self.get_reader_value("settings", "output_dir")) / csv_name)
 
-        self.logger.info(f"Generated {csv_name} at {self.get_reader_value('output_dir', 'settings')}")
+        self.logger.info(f"Generated {csv_name} at {self.get_reader_value('settings', 'output_dir')}")
 
         return utils.generate_response(
             status='success', 
@@ -160,22 +166,16 @@ class API:
         writer.set_names(names)
 
         csv_name: str = f"{utils.get_date()}-az-bulk.csv"
-        writer.write(Path(self.get_reader_value("output_dir", "settings")) / csv_name)
+        writer.write(Path(self.get_reader_value("settings", "output_dir")) / csv_name)
 
-        self.logger.info(f"Manual generated {csv_name} at {self.get_reader_value('output_dir', 'settings')}")
+        self.logger.info(f"Manual generated {csv_name} at {self.get_reader_value('settings', 'output_dir')}")
 
         return utils.generate_response(status='success', message='', status_code=200)
     
-    def get_reader_value(self, key: str, reader: Literal["settings", "opco", "excel"]) -> Any:
+    def get_reader_value(self, reader: Literal["settings", "opco", "excel"], key: str) -> Any:
         '''Gets the values from any Reader keys. If the key does not exist,
         then an empty string is returned.'''
-        readers: dict[str, Reader] = {
-            "settings": self.settings,
-            "opco": self.opco,
-            "excel": self.excel,
-        }
-
-        val: Any = readers[reader].get(key)
+        val: Any = self.readers[reader].get(key)
 
         if val is None:
             self.logger.error(f"Key {key} does not exist in {reader}")
@@ -183,15 +183,20 @@ class API:
         
         return val
     
-    def update_key(self, key: str, value: Any) -> dict[str, Any]:
+    def update_key(self, reader_type: Literal["settings", "opco", "excel"], key: str, value: Any) -> dict[str, Any]:
         '''Updates a key from the given value.'''
+        reader: Reader = self.readers[reader_type]
+
         self.logger.info(f"Starting key update with key {key} and value {value}")
+        prev_val: Any = reader.get(key)
 
-        print(self.excel.get(key))
+        self.logger.debug(f"Key: {key} | Previous value: {prev_val} | New value: {value}")
+        res: dict[str, Any] = reader.update(key, value)
 
-        #res: dict[str, Any] = self.excel.update(key, value)
+        if res["status"] != "error":
+            self.logger.info(f"Updated key {key} with value {value}")
 
-        #print(res)
+        return res
     
     def set_output_dir(self, dir_: Path | str = None) -> dict[str, str]:
         '''Update the output directory.'''

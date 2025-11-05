@@ -1,6 +1,6 @@
-import string, re
 from core.names import NameFormatter, NoSpace, Period
 from typing import Literal, Any, Callable
+import string, re
 
 def format_name(name: str) -> str:
     '''Formats a name to only the first and last name.'''
@@ -76,7 +76,7 @@ def generate_response(status: Literal['error', 'success'] = 'success', **kwargs)
         kwargs: dict[str, Any]
             Any keyword argument, this gets added into the response.
     '''
-    res: dict[str, Any] = {'status': status}
+    res: dict[str, Any] = {"status": status}
 
     for key, value in kwargs.items():
         res[key] = value
