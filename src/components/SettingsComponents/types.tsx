@@ -16,4 +16,5 @@ export type OptionProps = {
 export type OptionBaseProps = {
     title: string,
     options: Array<OptionProps>,
+    readerType?: "opco" | "settings" | "excel" , // used for indicating what reader to be targeted in the backend
 }

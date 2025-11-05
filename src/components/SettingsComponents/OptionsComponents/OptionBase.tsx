@@ -2,7 +2,7 @@ import React, { JSX } from "react";
 import { OptionBaseProps } from "../types";
 
 
-export default function OptionBase({options, title}: OptionBaseProps): JSX.Element{
+export default function OptionBase({options, title, readerType}: OptionBaseProps): JSX.Element{
     return (
         <>
         <div className="overflow-y-auto">
@@ -36,7 +36,7 @@ const TextComponent = ({name}: {name: string}) => (
     type="text" />
 )
 
-async function onSubmitText(event: React.FormEvent<HTMLFormElement>){
+async function onSubmitText(event: React.FormEvent<HTMLFormElement>, readerType: OptionBaseProps["readerType"]){
     event.preventDefault();
 
     const targetInput: HTMLInputElement|null = event.currentTarget.children.item(0) as HTMLInputElement;
@@ -44,7 +44,7 @@ async function onSubmitText(event: React.FormEvent<HTMLFormElement>){
     const keyToChange: string = targetInput.getAttribute("name")!;
     const value: string = targetInput.value;
 
-    await window.pywebview.api.update_key(keyToChange, value).then((res: {}) => {
+    await window.pywebview.api.update_key(readerType, keyToChange, value).then((res: {}) => {
         console.log(res);
     });
 }
