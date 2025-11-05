@@ -9,7 +9,7 @@ import CogWheelIcon from "./svgs/CogWheelIcon";
 import { useModalContext } from "./context/ModalContext";
 import { ToastContainer } from "react-toastify";
 import General from "./components/SettingsComponents/OptionsComponents/General";
-import Mapping from "./components/SettingsComponents/OptionsComponents/Mapping";
+import HeadersMapping from "./components/SettingsComponents/OptionsComponents/HeadersMapping";
 
 const fullPageStyle = 'h-screen w-screen flex flex-col justify-center items-center overflow-hidden relative p-3'
 
@@ -42,7 +42,7 @@ export default function App() {
           <Routes>
             <Route path="settings" element={<Settings setShowSetting={setShowSetting} />}> 
               <Route index element={<General />} />
-              <Route path="mapping" element={<Mapping />} />
+              <Route path="headers-mapping" element={<HeadersMapping />} />
             </Route>
           </Routes>
         }
