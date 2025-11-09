@@ -3,8 +3,7 @@ import { OptionProps, ReaderType } from "../types";
 import OptionBase from "./OptionBase";
 import { onSubmitText } from "../functions";
 
-const readerType: ReaderType = "excel";
-const TextComponent = ({name}: {name: string}) => (
+const TextComponent = ({name, readerType}: {name: string, readerType: ReaderType}) => (
     <form
     onSubmit={e => onSubmitText(e, readerType)}>
         <input
@@ -15,9 +14,10 @@ const TextComponent = ({name}: {name: string}) => (
 )
 
 const title: string = "Headers";
+const readerType: ReaderType = "excel";
 const options: Array<OptionProps> = [
-    {label: "Name", type: "text", element: <TextComponent name={"name"} />},
-    {label: "Operating Company", type: "text", element: <TextComponent name={"opco"} />},
+    {label: "Name", element: <TextComponent name={"name"} readerType={readerType} />},
+    {label: "Operating Company", element: <TextComponent name={"opco"} readerType={readerType} />},
 ]
 
 export default function HeadersMapping(): JSX.Element{

@@ -7,19 +7,25 @@ export type SettingsButton = {
 
 export type OptionProps = {
     label: string, // the option to be displayed
-    type: "button" | "slider" | "text", // the value that will be used with func
     element: JSX.Element, // the element to display after the label. this should be related to the backend call
-    optLabel?: JSX.Element // an optional string that is displayed right next to the label.
+    optLabel?: JSX.Element, // an optional string that is displayed right next to the label.
+    justify?: "center" | "between" | "start" | "end",
 }
 
 export type OptionBaseProps = {
     title: string,
-    options: Array<OptionProps>,
+    options?: Array<OptionProps>,
 }
 
 export type ReaderType = "opco" | "settings" | "excel";
 
 export type OpcoMap = {
-    key: string,
+    id: string,
+    opcoKey: string,
     value: string,
+}
+
+export type OpcoCard = {
+    key: string,
+    val: string,
 }

@@ -5,8 +5,8 @@ import SliderButton from "../../ui/SliderButton";
 
 const title: string = "General";
 const options: Array<OptionProps> = [
-    {label: "Output Folder", type: "button", element: <></>},
-    {label: "Test", type: "slider", element: <SliderButton func={() => console.log("placeholder")} />},
+    {label: "Output Folder", element: <></>},
+    {label: "Test", element: <SliderButton func={() => console.log("placeholder")} />},
 ]
 
 export default function General(): JSX.Element{

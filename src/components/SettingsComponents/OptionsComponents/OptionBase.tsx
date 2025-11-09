@@ -1,8 +1,8 @@
 import { JSX } from "react";
-import { OptionBaseProps } from "../types";
+import { OptionBaseProps, OptionProps } from "../types";
 
 
-export default function OptionBase({options, title}: OptionBaseProps): JSX.Element{
+export default function OptionBase({options = [], title}: OptionBaseProps): JSX.Element{
     return (
         <>
         <div className="overflow-y-auto">
@@ -11,10 +11,10 @@ export default function OptionBase({options, title}: OptionBaseProps): JSX.Eleme
                     {title}
                 </h2>
             </div>
-            {options.map((opt, i) => (
+            {options.length > 0 && options.map((opt, i) => (
                 <div 
                 key={i}
-                className="flex justify-between items-center border-b-1 m-2 p-2 text-sm">
+                className={getClassName(opt.justify)}>
                     {opt.label}
                     {opt.element}
                 </div>
@@ -22,4 +22,30 @@ export default function OptionBase({options, title}: OptionBaseProps): JSX.Eleme
         </div>
         </>
     )
+}
+
+/**
+ * Generates the class name based off of justify. By default it will always be justify-between if undefined.
+ * @param justify - The justification of the flex box.
+ * @returns className
+ */
+function getClassName(justify: OptionProps["justify"] | undefined): string{
+    let optionClassName: string = "flex items-center border-b-1 m-2 p-2 text-sm gap-3";
+
+    switch (justify) {
+        case "center":
+            optionClassName = `${optionClassName} justify-center`;
+            break;
+        case "end":
+            optionClassName = `${optionClassName} justify-end`;
+            break;
+        case "start":
+            optionClassName = `${optionClassName} justify-start`;
+            break;
+        default:
+            optionClassName = `${optionClassName} justify-between`;
+            break;
+    }
+
+    return optionClassName;
 }
