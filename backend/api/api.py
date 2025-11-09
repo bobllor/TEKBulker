@@ -11,6 +11,8 @@ from support.vars import DEFAULT_HEADER_MAP, DEFAULT_OPCO_MAP, DEFAULT_SETTINGS_
 import support.utils as utils
 import pandas as pd
 
+ReaderType = Literal["excel", "opco", "settings"]
+
 class API:
     def __init__(self, *, 
             excel_reader: Reader, settings_reader: Reader,
@@ -37,7 +39,7 @@ class API:
         self.opco: Reader = opco_reader
         self.logger: Log = logger or Log()
 
-        self.readers: dict[str, Reader] = {
+        self.readers: dict[ReaderType, Reader] = {
             "settings": self.settings,
             "opco": self.opco,
             "excel": self.excel,
@@ -199,6 +201,24 @@ class API:
 
         if res["status"] != "error":
             self.logger.info(f"Updated key {key} with value {value}")
+
+        return res
+    
+    def insert_update_many(self, reader: ReaderType, content: dict[str, Any]) -> dict[str, Any]:
+        '''Insert and update content to the Reader from a dictionary.'''
+        res: dict[str, Any] = self.readers[reader].insert_update_many(content)
+
+        return res
+    
+    def add_opco(self, content: dict[str, Any]) -> dict[str, Any]:
+        '''Adds a key-value pair to the Reader's content.'''
+        # defined in the front end
+        KEY: str = "opcoKey"
+        VALUE: str = "value"
+
+        self.logger.info(f"Operating company data received: {content}")
+
+        res: dict[str, Any] = self.opco.insert(key=content[KEY], value=content[VALUE])
 
         return res
     
