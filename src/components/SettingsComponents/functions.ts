@@ -58,7 +58,7 @@ export async function addOpcoEntry(
         setOpcoOptions(prev => [...prev, opcoHolder]);
 
         // TODO: make a res type and also work on the response.
-        await window.pywebview.api.add_opco(opcoHolder).then((res: {}) => {
+        /*await window.pywebview.api.add_opco(opcoHolder).then((res: {}) => {
             console.log(res);
-        });
+        });*/
 }

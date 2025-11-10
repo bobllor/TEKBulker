@@ -1,6 +1,6 @@
 import React, { JSX, useState, useRef } from "react";
 import { OpcoMap, ReaderType } from "../types";
-import { useOpcoInit } from "../hooks";
+import { useOpcoInit, useUpdateBaseOpco } from "../hooks";
 import { addOpcoEntry } from "../functions";
 import { compareObjects } from "../../../utils";
 import OptionBase from "./OptionBase";
@@ -13,6 +13,8 @@ export default function OpcoMapping(): JSX.Element{
     const [inputData, setInputData] = useState({keyOpco: "", valueOpco: ""});
     const [isEditable, setIsEditable] = useState(false);
 
+    const [updateBaseRef, setUpdateBaseRef] = useState<boolean>(false);
+
     const [resetDefault, setResetDefault] = useState(false);
 
     // used to keep track of the previous options prior to any updates.
@@ -20,6 +22,12 @@ export default function OpcoMapping(): JSX.Element{
     const opcoKeysRef = useRef<Set<string>>(new Set());
 
     useOpcoInit(baseOpcoRef, opcoKeysRef, setOpcoOptions);
+
+    useUpdateBaseOpco({context: {
+        statusProps: {status: updateBaseRef, setStatus: setUpdateBaseRef},
+        opcoOptions: opcoOptions,
+        baseOpcoRef: baseOpcoRef,
+    }});
 
     return (
         <>
@@ -29,18 +37,28 @@ export default function OpcoMapping(): JSX.Element{
                 :
                 <>
                     <form
-                    onSubmit={e => addOpcoEntry(e, setOpcoOptions)}>
+                    onSubmit={e => {
+                                // update the base ref after calling this.
+                                addOpcoEntry(e, setOpcoOptions).then(() => {
+                                    setUpdateBaseRef(true);
+                                });
+                            }
+                        }>
                         {Object.keys(inputData).map((name, i) => (
                             <input 
                             key={i}
                             type="text"
-                            onChange={e => setInputData(prev => {
-                                if(e.currentTarget.getAttribute("name")!.includes("key")){
-                                    return {...prev, keyOpco: e.currentTarget.value};
-                                }
+                            onChange={e => {
+                                const input: HTMLInputElement = e.currentTarget;
 
-                                return {...prev, valueOpco: e.currentTarget.value};
-                            })}
+                                setInputData(prev => {
+                                    if(input.getAttribute("name")!.includes("key")){
+                                        return {...prev, keyOpco: input.value};
+                                    }
+
+                                    return {...prev, valueOpco: input.value};
+                                })
+                            }}
                             name={name} />
                         ))}
                         <input type="submit"/>
@@ -51,11 +69,7 @@ export default function OpcoMapping(): JSX.Element{
                                 if(isEditable){
                                     updateOpcoMapping(opcoOptions, baseOpcoRef).then(status => {
                                         if(status){
-                                            // update the set for the keys.
-                                            opcoKeysRef.current.clear();
-                                            opcoOptions.forEach((opco) => {
-                                                opcoKeysRef.current.add(opco.opcoKey);
-                                            })
+                                            setUpdateBaseRef(true);
                                         }
                                     });
                                 }
@@ -68,7 +82,7 @@ export default function OpcoMapping(): JSX.Element{
                             <div 
                             onClick={() => {
                                 // this is manually edited inside OpcoRow, i cannot figure out
-                                // why setOpcoOptions does not get updated upon cancel.
+                                // why setOpcoOptions does not get updated.
                                 // something with baseOpcoRef.current... i dont know.
                                 setIsEditable(prev => !prev);
                                 setResetDefault(true);

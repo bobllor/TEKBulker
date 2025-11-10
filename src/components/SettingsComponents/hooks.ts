@@ -39,3 +39,23 @@ export function useOpcoInit(
             setReaderContent(reader);
         }, [])
 }
+
+/**
+ * Hook for updating the base operating company reference for holding the previous state.
+ * @param context - The UpdateBaseProps context for the hook.
+ */
+export function useUpdateBaseOpco({context}: {context: UpdateBaseProps}){
+    useEffect(() => {
+        if(context.statusProps.status){
+            context.baseOpcoRef.current = [...context.opcoOptions];
+
+            context.statusProps.setStatus(false);
+        }
+    }, [context.statusProps.status])
+}
+
+type UpdateBaseProps = {
+    statusProps: {status: boolean, setStatus: React.Dispatch<React.SetStateAction<boolean>>},
+    opcoOptions: Array<OpcoMap>,
+    baseOpcoRef: React.RefObject<Array<OpcoMap>>,
+}
