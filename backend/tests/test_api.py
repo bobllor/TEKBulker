@@ -219,22 +219,22 @@ def test_update_default_key(api: API):
 
     assert res["status"] != "error" and prev_val != new_val and new_val == var
 
-def test_insert_update_many(api: API):
+def test_insert_update_rm_many(api: API):
     data: dict[str, str] = {
-        "default": "test.com",
-        "example 1": "test2.com",
-        "example 2": "nhcs.edu.gov",
+        "default": "5555",
+        "company one": "t444",
+        "company two": "123",
+        "inserted key": "11",
     }
 
-    base_len: int = len(api.get_reader_content("opco"))
-    api.insert_update_many("opco", data)
+    print(api.get_reader_content("opco"))
+    api.insert_update_rm_many("opco", data)
 
     new_data: dict[str, str] = api.get_reader_content("opco")
-    new_len: int = len(new_data)
-    
-    # data len has to be subtracted by 1 because of default.
-    assert base_len + len(data) - 1 == new_len and new_data["default"] == data["default"]
 
+    # company three should be removed as it does not exist in data.
+    # inserted key is inserted. 
+    assert "company three" not in new_data and "inserted key" in new_data
 
 def test_get_content(api: API):
     data: dict[str, Any] = api.get_reader_content("opco")
