@@ -128,8 +128,22 @@ class Reader:
                 self.logger.info(f"Updated key {key} with {val}")
             else:
                 self.logger.info(f"Inserted key {key} with {val}")
+        
+        self.write(self._content)
 
         return utils.generate_response("success", message="Successfully inserted keys", status_code=200) 
+    
+    def clear(self) -> None:
+        '''Clears the entire Reader, except default keys.'''
+        new_content: dict[str, Any] = {}
+        for key in self._defaults.keys():
+            if key in self._content:
+                new_content[key] = self._content[key]
+            else:
+                new_content[key] = self._defaults[key]
+            
+        self._content = new_content
+        self.write(self._content)
     
     def delete(self, key: str) -> dict[str, Any]:
         '''Deletes a key from the file.'''

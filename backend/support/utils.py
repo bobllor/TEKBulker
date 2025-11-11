@@ -2,8 +2,14 @@ from core.names import NameFormatter, NoSpace, Period
 from typing import Literal, Any, Callable
 import string, re
 
-def format_name(name: str) -> str:
-    '''Formats a name to only the first and last name.'''
+def format_name(name: str, *, keep_full: bool = False) -> str:
+    '''Formats and validates a name, by default the First and Last name only.
+    
+    Parameters
+    ----------
+        keep_full: bool, default False
+            Boolean used to keep the full name instead of keeping only the First and Last.
+    '''
     special_chars: set[str] = set(string.punctuation)
     
     chars: list[str] = []
@@ -12,7 +18,7 @@ def format_name(name: str) -> str:
             chars.append(c)
         
         if c == '-':
-            chars.append(' ')
+            chars.append('-')
 
     name: str = ''.join(chars)
     name_list: list[str] = name.split()
@@ -24,22 +30,26 @@ def format_name(name: str) -> str:
     for name in name_list:
         name = name.lower().strip()
         
-        is_valid: bool = re.match('^([A-Za-z]*)$', name) != None
+        is_valid: bool = re.match('^([A-Za-z-]*)$', name) != None
         has_bad_words: bool = name in unwanted_words
 
         if is_valid and not has_bad_words and len(name) > 1:
             new_name.append(name.title())
 
+    # TODO: wtf... lets fix this later
     if not new_name:
         raise ValueError('An invalid name was entered.')
 
     f_name: str = new_name[0]
+    if keep_full:
+        f_name = " ".join(new_name[0:len(new_name) - 1])
     l_name: str = new_name[-1]
 
     # if the full name is 20 characters long, then only use the first letter of the first name.
     # i don't think this is necessary, i am unsure of the limit for azure. ServiceNow had this however.
-    if len(f'{f_name} {l_name}') > 20:
-        return f'{f_name[0]} {l_name}'
+    # TODO: needs testing on azure.
+    '''if len(f'{f_name} {l_name}') > 20:
+        return f'{f_name[0]} {l_name}'''
 
     return f'{f_name} {l_name}'
 
@@ -91,7 +101,8 @@ def generate_usernames(
     format_type: Literal["period", "no space"] = "period",
     format_style: Literal["first last", "f last", "first l"] = "first last",
     format_case: Literal["title", "lower", "upper"] = "title") -> list[str]:
-    '''Generates a list of formatted usernames for Azure.
+    '''Generates a list of formatted usernames for Azure. Only the first and last name are
+    taken. If dashes exist then it will be removed.
     
     Parameters
     ----------
@@ -132,7 +143,7 @@ def generate_usernames(
     usernames: list[str] = []
 
     for i, name in enumerate(names):
-        name = name.strip()
+        name = format_hyphen_name(name.strip())
         username: str = style_dict[format_style](name)
 
         usernames.append(f'{username}@{opco_map.get(opcos[i], default_opco)}')
@@ -185,10 +196,32 @@ def generate_username(
     }
 
     default_opco: str = opco_map.get('default', "MISSING_DEFAULT.com")
-    name = name.strip()
+    name = format_hyphen_name(name.strip())
     username: str = style_dict[format_style](name)
 
     return f'{username}@{opco_map.get(opco, default_opco)}'
+
+def format_hyphen_name(name: str) -> str:
+    '''Formats the name of the hyphen to extract the First and Last names only.'''
+    if "-" in name:
+        names: list[str] = name.split()
+        temp_name: list[str] = []
+
+        for i, n in enumerate(names):
+            # ignores any hyphens that arent the first or last names.
+            if "-" in n and (i == 0 or i == len(names) - 1): 
+                temp_n: list[str] = n.split("-")
+
+                temp_name.append(temp_n[0 if len(temp_name) == 0 else -1])
+                continue
+            
+            # this handles if we have hyphens in the middle of names
+            if i == 0 or i == len(names) - 1: 
+                temp_name.append(n)
+
+        name = " ".join(temp_name)
+    
+    return name
 
 def get_date(date_format: str = '%Y-%m-%dT%H%M%S') -> str:
     '''Get the date, by default it returns the format YY-MM-DD-HHMMSS'''

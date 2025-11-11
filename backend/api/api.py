@@ -45,6 +45,9 @@ class API:
             "excel": self.excel,
         }
 
+        # used to write the text file entry.
+        self._write_text: bool = False
+
     def initialization(self) -> dict[str, dict[str, Any]]:
         '''Returns all Reader values in one dictionary.'''
         contents: dict[str, Any] = {
@@ -56,6 +59,14 @@ class API:
         self.logger.debug(f"Data {contents} initializing")
 
         return contents
+    
+    def init_settings(self) -> dict[str, Any]:
+        '''Initializes the setting values.'''
+        content: dict[str, Any] = {
+            "write_text": self._write_text,
+        }
+
+        return content
 
     def generate_azure_csv(self, content: GenerateCSVProps | pd.DataFrame) -> dict[str, str]: 
         '''Generates the Azure CSV file for bulk accounts.
@@ -100,10 +111,16 @@ class API:
             return utils.generate_response(status='error', message=f'Invalid file \
                 {file_name} uploaded.')
 
-        parser.apply(default_excel_columns["name"], func=utils.format_name)
-        names: list[str] = parser.get_rows(default_excel_columns['name']) 
+        # maybe readd this back? for now i want to keep the full name.
+        #parser.apply(default_excel_columns["name"], func=utils.format_name)
+        parser.apply(default_excel_columns["opco"], func=lambda x: x.lower())
+        excel_names: list[str] = parser.get_rows(default_excel_columns["name"])
+
+        names: list[str] = [utils.format_name(name) for name in excel_names]
+        full_names: list[str] = [utils.format_name(name, keep_full=True) for name in excel_names]
         opcos: list[str] = parser.get_rows(default_excel_columns["opco"])
 
+        self.logger.debug(f"Opcos: {opcos}") 
         dupe_names: list[str] = utils.check_duplicate_names(names)
 
         # the mapping of the operating company to their domain name.
@@ -113,7 +130,7 @@ class API:
 
         writer: AzureWriter = AzureWriter(logger=self.logger)
 
-        writer.set_full_names(names)
+        writer.set_full_names(full_names)
         writer.set_names(names)
         writer.set_block_sign_in(len(names), []) 
         writer.set_usernames(usernames)
@@ -139,8 +156,10 @@ class API:
                 A list of dictionaries to convert into a DataFrame for a CSV.
                 Each dictionary represents a row to be added.
         '''
+        self.logger.debug(f"Manual generation data: {content}")
         names: list[str] = []
         opcos: list[str] = []
+        full_names: list[str] = []
 
         opco_mappings: dict[str, str] = self.opco.get_content()
 
@@ -148,11 +167,14 @@ class API:
         # i could also possibly add in the block sign in values in the content...
         for obj in content:
             name: str = utils.format_name(obj["name"])
-            opco: str = obj["opco"]
+            full_name: str = utils.format_name(obj["name"], keep_full=True)
+            opco: str = obj["opco"].lower()
 
             names.append(name)
+            full_names.append(full_name)
             opcos.append(opco)
-        
+
+        self.logger.debug(f"Opcos: {opcos}") 
         dupe_names: list[str] = utils.check_duplicate_names(names)
 
         # TODO: add formatting style/case/type
@@ -161,7 +183,7 @@ class API:
 
         writer: AzureWriter = AzureWriter(logger=self.logger)
 
-        writer.set_full_names(names)
+        writer.set_full_names(full_names)
         writer.set_usernames(usernames)
         writer.set_passwords(passwords)
         writer.set_block_sign_in(len(names), [])
@@ -204,8 +226,15 @@ class API:
 
         return res
     
-    def insert_update_many(self, reader: ReaderType, content: dict[str, Any]) -> dict[str, Any]:
-        '''Insert and update content to the Reader from a dictionary.'''
+    def delete_opco_key(self, key: str) -> dict[str, Any]:
+        '''Deletes a key from the operating company Reader.'''
+        res: dict[str, Any] = self.opco.delete(key)
+
+        return res
+    
+    def insert_update_rm_many(self, reader: ReaderType, content: dict[str, Any]) -> dict[str, Any]:
+        '''Insert, update, and remove content to the Reader from a given dictionary.'''
+        self.readers[reader].clear()
         res: dict[str, Any] = self.readers[reader].insert_update_many(content)
 
         return res
