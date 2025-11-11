@@ -1,4 +1,4 @@
-import { JSX, useEffect } from "react";
+import { JSX } from "react";
 import { NavigateFunction } from "react-router";
 import { useNavigate } from "react-router";
 import { useModalContext } from "../context/ModalContext";
@@ -39,7 +39,7 @@ export default function Navigation({formState}: {formState: FormStateProps}
               <div key={i}
               onClick={() => clickWrapper(obj.url)}
               className={`py-1 px-2 w-20 flex justify-center items-center rounded-xl bg-gray-300
-              ${obj.url == window.location.pathname && "bg-gray-400"}`}>
+              hover:bg-gray-500/60`}>
                 {obj.label}
               </div>
             ))}

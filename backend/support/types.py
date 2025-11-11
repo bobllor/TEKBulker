@@ -1,5 +1,4 @@
 from typing import TypedDict
-import pandas as pd
 
 class GenerateCSVProps(TypedDict):
     fileName: str

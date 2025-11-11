@@ -1,6 +1,6 @@
 import React from 'react';
 import { toastError, toastSuccess } from '../../../toastUtils.ts';
-import '../../../types.ts';
+import '../../../pywebview.ts';
 import { UploadedFilesProps, FileStatus, GenerateCSVProps } from './types.ts';
 
 //** Updates the uploaded files state with the event file from the input element. */
@@ -70,9 +70,6 @@ export async function uploadFile(
     for(const b64_ele of b64Arr){
         let status: FileStatus = "success";
         try{
-            // TODO: use the loop above to do this.
-            // YOU are going to implement a UI/UX feature here to show success/fails on each
-            // file uploaded from this method call.
             const res: {
                 status: string, message: string
             } = await window.pywebview.api.generate_azure_csv(b64_ele);

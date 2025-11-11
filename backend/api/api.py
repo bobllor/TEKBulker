@@ -11,6 +11,8 @@ from support.vars import DEFAULT_HEADER_MAP, DEFAULT_OPCO_MAP, DEFAULT_SETTINGS_
 import support.utils as utils
 import pandas as pd
 
+ReaderType = Literal["excel", "opco", "settings"]
+
 class API:
     def __init__(self, *, 
             excel_reader: Reader, settings_reader: Reader,
@@ -37,6 +39,15 @@ class API:
         self.opco: Reader = opco_reader
         self.logger: Log = logger or Log()
 
+        self.readers: dict[ReaderType, Reader] = {
+            "settings": self.settings,
+            "opco": self.opco,
+            "excel": self.excel,
+        }
+
+        # used to write the text file entry.
+        self._write_text: bool = False
+
     def initialization(self) -> dict[str, dict[str, Any]]:
         '''Returns all Reader values in one dictionary.'''
         contents: dict[str, Any] = {
@@ -48,6 +59,14 @@ class API:
         self.logger.debug(f"Data {contents} initializing")
 
         return contents
+    
+    def init_settings(self) -> dict[str, Any]:
+        '''Initializes the setting values.'''
+        content: dict[str, Any] = {
+            "write_text": self._write_text,
+        }
+
+        return content
 
     def generate_azure_csv(self, content: GenerateCSVProps | pd.DataFrame) -> dict[str, str]: 
         '''Generates the Azure CSV file for bulk accounts.
@@ -92,26 +111,35 @@ class API:
             return utils.generate_response(status='error', message=f'Invalid file \
                 {file_name} uploaded.')
 
-        parser.apply(default_excel_columns["name"], func=utils.format_name)
-        names: list[str] = parser.get_rows(default_excel_columns['name']) 
+        # maybe readd this back? for now i want to keep the full name.
+        #parser.apply(default_excel_columns["name"], func=utils.format_name)
+        parser.apply(default_excel_columns["opco"], func=lambda x: x.lower())
+        excel_names: list[str] = parser.get_rows(default_excel_columns["name"])
+
+        names: list[str] = [utils.format_name(name) for name in excel_names]
+        full_names: list[str] = [utils.format_name(name, keep_full=True) for name in excel_names]
         opcos: list[str] = parser.get_rows(default_excel_columns["opco"])
+
+        self.logger.debug(f"Opcos: {opcos}") 
+        dupe_names: list[str] = utils.check_duplicate_names(names)
 
         # the mapping of the operating company to their domain name.
         opco_mappings: dict[str, str] = self.opco.get_content()
-        usernames: list[str] = utils.generate_usernames(names, opcos, opco_mappings)
+        # TODO: add formatting style/case/type
+        usernames: list[str] = utils.generate_usernames(dupe_names, opcos, opco_mappings)
 
         writer: AzureWriter = AzureWriter(logger=self.logger)
 
-        writer.set_full_names(names)
+        writer.set_full_names(full_names)
         writer.set_names(names)
         writer.set_block_sign_in(len(names), []) 
         writer.set_usernames(usernames)
         writer.set_passwords([utils.generate_password(20) for _ in range(len(names))])
 
         csv_name: str = f"{utils.get_date()}-az-bulk.csv"
-        writer.write(Path(self.get_reader_value("output_dir", "settings")) / csv_name)
+        writer.write(Path(self.get_reader_value("settings", "output_dir")) / csv_name)
 
-        self.logger.info(f"Generated {csv_name} at {self.get_reader_value('output_dir', 'settings')}")
+        self.logger.info(f"Generated {csv_name} at {self.get_reader_value('settings', 'output_dir')}")
 
         return utils.generate_response(
             status='success', 
@@ -128,64 +156,100 @@ class API:
                 A list of dictionaries to convert into a DataFrame for a CSV.
                 Each dictionary represents a row to be added.
         '''
+        self.logger.debug(f"Manual generation data: {content}")
         names: list[str] = []
         opcos: list[str] = []
-        usernames: list[str] = []
+        full_names: list[str] = []
 
-        seen_names: dict[str, int] = {}
         opco_mappings: dict[str, str] = self.opco.get_content()
 
         # contains name, opco, and id. id is not relevant to this however.
         # i could also possibly add in the block sign in values in the content...
         for obj in content:
             name: str = utils.format_name(obj["name"])
-            opco: str = obj["opco"]
-
-            # assume duplicate names are unique, a number is added to distinguish the username.
-            if name not in seen_names:
-                seen_names[name] = 0
-            else:
-                seen_names[name] = seen_names.get(name) + 1
-
-                name = name + str(seen_names.get(name))
+            full_name: str = utils.format_name(obj["name"], keep_full=True)
+            opco: str = obj["opco"].lower()
 
             names.append(name)
-            usernames.append(utils.generate_username(name, opco, opco_mappings))
+            full_names.append(full_name)
             opcos.append(opco)
 
+        self.logger.debug(f"Opcos: {opcos}") 
+        dupe_names: list[str] = utils.check_duplicate_names(names)
+
+        # TODO: add formatting style/case/type
+        usernames: list[str] = utils.generate_usernames(dupe_names, opcos, opco_mappings)
         passwords: list[str] = [utils.generate_password() for _ in range(len(names))]
 
         writer: AzureWriter = AzureWriter(logger=self.logger)
 
-        writer.set_full_names(names)
+        writer.set_full_names(full_names)
         writer.set_usernames(usernames)
         writer.set_passwords(passwords)
         writer.set_block_sign_in(len(names), [])
         writer.set_names(names)
 
         csv_name: str = f"{utils.get_date()}-az-bulk.csv"
-        writer.write(Path(self.get_reader_value("output_dir", "settings")) / csv_name)
+        writer.write(Path(self.get_reader_value("settings", "output_dir")) / csv_name)
 
-        self.logger.info(f"Manual generated {csv_name} at {self.get_reader_value('output_dir', 'settings')}")
+        self.logger.info(f"Manual generated {csv_name} at {self.get_reader_value('settings', 'output_dir')}")
 
         return utils.generate_response(status='success', message='', status_code=200)
     
-    def get_reader_value(self, key: str, reader: Literal["settings", "opco", "excel"]) -> Any:
+    def get_reader_value(self, reader: Literal["settings", "opco", "excel"], key: str) -> Any:
         '''Gets the values from any Reader keys. If the key does not exist,
         then an empty string is returned.'''
-        readers: dict[str, Reader] = {
-            "settings": self.settings,
-            "opco": self.opco,
-            "excel": self.excel,
-        }
-
-        val: Any = readers[reader].get(key)
+        val: Any = self.readers[reader].get(key)
 
         if val is None:
             self.logger.error(f"Key {key} does not exist in {reader}")
             return ""
         
         return val
+    
+    def get_reader_content(self, reader: Literal["settings", "opco", "excel"]) -> dict[str, Any]:
+        '''Gets the data of the Reader.'''
+        return self.readers[reader].get_content()
+    
+    def update_key(self, reader_type: Literal["settings", "opco", "excel"], key: str, value: Any) -> dict[str, Any]:
+        '''Updates a key from the given value.'''
+        reader: Reader = self.readers[reader_type]
+
+        self.logger.info(f"Starting key update with key {key} and value {value}")
+        prev_val: Any = reader.get(key)
+
+        self.logger.debug(f"Key: {key} | Previous value: {prev_val} | New value: {value}")
+        res: dict[str, Any] = reader.update(key, value)
+
+        if res["status"] != "error":
+            self.logger.info(f"Updated key {key} with value {value}")
+
+        return res
+    
+    def delete_opco_key(self, key: str) -> dict[str, Any]:
+        '''Deletes a key from the operating company Reader.'''
+        res: dict[str, Any] = self.opco.delete(key)
+
+        return res
+    
+    def insert_update_rm_many(self, reader: ReaderType, content: dict[str, Any]) -> dict[str, Any]:
+        '''Insert, update, and remove content to the Reader from a given dictionary.'''
+        self.readers[reader].clear()
+        res: dict[str, Any] = self.readers[reader].insert_update_many(content)
+
+        return res
+    
+    def add_opco(self, content: dict[str, Any]) -> dict[str, Any]:
+        '''Adds a key-value pair to the Reader's content.'''
+        # defined in the front end
+        KEY: str = "opcoKey"
+        VALUE: str = "value"
+
+        self.logger.info(f"Operating company data received: {content}")
+
+        res: dict[str, Any] = self.opco.insert(key=content[KEY], value=content[VALUE])
+
+        return res
     
     def set_output_dir(self, dir_: Path | str = None) -> dict[str, str]:
         '''Update the output directory.'''

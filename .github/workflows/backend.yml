@@ -1,4 +1,4 @@
-name: backend-tester
+name: backend
 
 on:
   push:
@@ -7,6 +7,8 @@ on:
   pull_request:
     paths:
         - '**.py'
+  workflow_dispatch:
+
 jobs:
   build:
     name: Python Build
@@ -17,7 +19,7 @@ jobs:
         with:
           python-version: '>=3.11 <3.14'
       - name: Setup
-        run: pip install -r requirements.txt
+        run: pip install -r actions-requirements.txt
       - name: pytest
         run: |
           pytest -s

@@ -33,7 +33,7 @@ export default function UploadForm({inputFileRef, FileUpload, showDrop}){
                     </div>
                 </>
                 <form 
-                className={`flex flex-col justify-center items-center gap-3 p-5 ${!showDrop && "z-5"}`}
+                className={`flex flex-col justify-center items-center gap-3 p-5 ${!showDrop && "z-2"}`}
                 onSubmit={(e) => uploadFile(e, uploadedFiles, setUploadedFiles)}>
                     <div>
                         <Button text={"Submit"} paddingX={10} paddingY={3} />

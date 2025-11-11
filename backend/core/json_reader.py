@@ -116,6 +116,35 @@ class Reader:
 
         return utils.generate_response(message=f"Successfully updated key {key}", status_code=200)
     
+    def insert_update_many(self, data: dict[str, Any]) -> dict[str, Any]:
+        '''Inserts contents of a dictionary into the Reader. If the key aleady exists,
+        then it will update the Reader instead.'''
+        self.logger.debug(f"Given data: {data}")
+
+        for key, val in data.items():
+            self._content[key] = val
+
+            if key in self._content:
+                self.logger.info(f"Updated key {key} with {val}")
+            else:
+                self.logger.info(f"Inserted key {key} with {val}")
+        
+        self.write(self._content)
+
+        return utils.generate_response("success", message="Successfully inserted keys", status_code=200) 
+    
+    def clear(self) -> None:
+        '''Clears the entire Reader, except default keys.'''
+        new_content: dict[str, Any] = {}
+        for key in self._defaults.keys():
+            if key in self._content:
+                new_content[key] = self._content[key]
+            else:
+                new_content[key] = self._defaults[key]
+            
+        self._content = new_content
+        self.write(self._content)
+    
     def delete(self, key: str) -> dict[str, Any]:
         '''Deletes a key from the file.'''
         if key in self._defaults and not self._is_test:

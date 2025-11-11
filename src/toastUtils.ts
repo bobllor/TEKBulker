@@ -1,10 +1,12 @@
-import { toast } from "react-toastify";
+import { toast, ToastPosition } from "react-toastify";
+
+const POSITION: ToastPosition = "top-right"
 
 export function toaster(msg: string, type: "error" | "info" | "success" | "warning", duration: number = 3000): void{
     toast(
         msg,
         {
-            position: "top-center",
+            position: POSITION,
             type: type,
             closeOnClick: true, 
             pauseOnHover: false,
@@ -18,7 +20,7 @@ export function toastSuccess(msg: string, duration: number = 3000): void{
     toast(
         msg,
         {
-            position: "top-center",
+            position: POSITION,
             type: "success",
             closeOnClick: true, 
             pauseOnHover: false,
@@ -32,7 +34,7 @@ export function toastError(msg: string, duration: number = 3000){
     toast(
         msg,
         {
-            position: "top-center",
+            position: POSITION,
             type: "error",
             closeOnClick: true, 
             pauseOnHover: false,
