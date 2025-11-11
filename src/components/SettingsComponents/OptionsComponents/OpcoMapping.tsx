@@ -1,10 +1,12 @@
 import React, { JSX, useState, useRef } from "react";
 import { OpcoMap, ReaderType } from "../types";
-import { useOpcoInit, useUpdateBaseOpco } from "../hooks";
+import { useOpcoInit, useUpdateBaseSetOpco } from "../hooks";
 import { addOpcoEntry } from "../functions";
 import { compareObjects } from "../../../utils";
 import OptionBase from "./OptionBase";
 import OpcoRow from "./OpcoRow";
+import { toastError } from "../../../toastUtils";
+import "../../../pywebview";
 
 const title: string = "Operating Companies";
 
@@ -14,8 +16,10 @@ export default function OpcoMapping(): JSX.Element{
     const [isEditable, setIsEditable] = useState(false);
 
     const [updateBaseRef, setUpdateBaseRef] = useState<boolean>(false);
+    const [partialUpdate, setPartialUpdate] = useState<boolean>(false);
 
-    const [resetDefault, setResetDefault] = useState(false);
+    // used to reset the data to default values.
+    const [resetDefault, setResetDefault] = useState<boolean>(false);
 
     // used to keep track of the previous options prior to any updates.
     const baseOpcoRef = useRef<Array<OpcoMap>>([]);
@@ -23,10 +27,12 @@ export default function OpcoMapping(): JSX.Element{
 
     useOpcoInit(baseOpcoRef, opcoKeysRef, setOpcoOptions);
 
-    useUpdateBaseOpco({context: {
-        statusProps: {status: updateBaseRef, setStatus: setUpdateBaseRef},
+    useUpdateBaseSetOpco({context: {
+        fullUpdate: {status: updateBaseRef, setStatus: setUpdateBaseRef},
+        partialUpdate: {status: partialUpdate, setStatus: setPartialUpdate},
         opcoOptions: opcoOptions,
         baseOpcoRef: baseOpcoRef,
+        opcoKeysRef: opcoKeysRef,
     }});
 
     return (
@@ -38,9 +44,21 @@ export default function OpcoMapping(): JSX.Element{
                 <>
                     <form
                     onSubmit={e => {
+                                e.preventDefault();
+
                                 // update the base ref after calling this.
-                                addOpcoEntry(e, setOpcoOptions).then(() => {
-                                    setUpdateBaseRef(true);
+                                if(opcoKeysRef.current.has(inputData.keyOpco)){
+                                    toastError(`Key ${inputData.keyOpco} already exists`);
+                                    return;
+                                }else if(inputData.keyOpco.trim() == ""){
+                                    toastError(`Key cannot be empty`);
+                                    return;
+                                }
+
+                                addOpcoEntry(e, setOpcoOptions).then((status) => {
+                                    if(status){
+                                        setUpdateBaseRef(true);
+                                    }
                                 });
                             }
                         }>
@@ -50,13 +68,14 @@ export default function OpcoMapping(): JSX.Element{
                             type="text"
                             onChange={e => {
                                 const input: HTMLInputElement = e.currentTarget;
+                                const value: string = input.value.toLowerCase();
 
                                 setInputData(prev => {
                                     if(input.getAttribute("name")!.includes("key")){
-                                        return {...prev, keyOpco: input.value};
+                                        return {...prev, keyOpco: value};
                                     }
 
-                                    return {...prev, valueOpco: input.value};
+                                    return {...prev, valueOpco: value};
                                 })
                             }}
                             name={name} />
@@ -97,14 +116,18 @@ export default function OpcoMapping(): JSX.Element{
                             <tr>
                                 <th>Operating Company</th>
                                 <th>Domain</th>
+                                <th className="w-10">{/*empty element, used for Trash in OpcoRow */}</th>
                             </tr>
                         </thead>
                         <tbody>
                             {opcoOptions.map((opco, i) => (
                                 <React.Fragment
-                                key={i}>
-                                    <OpcoRow opco={opco} resetProp={{resetDefault: resetDefault, setResetDefault: setResetDefault}}
-                                    isEditable={isEditable} setOpcoOptions={setOpcoOptions} 
+                                key={opco.id}>
+                                    <OpcoRow opco={opco} 
+                                    defaultResetProp={{resetDefault: resetDefault, setResetDefault: setResetDefault}}
+                                    isEditable={isEditable} setOpcoOptions={setOpcoOptions}
+                                    partialResetProp={{status: partialUpdate, setStatus: setPartialUpdate}}
+                                    setUpdateBaseRef={setUpdateBaseRef}
                                     baseOpco={baseOpcoRef.current[i]}/>
                                 </React.Fragment>
                             ))}
@@ -151,7 +174,12 @@ async function updateOpcoMapping(
             })
             
             const reader: ReaderType = "opco";
-            //window.pywebview.api.insert_update_many(reader, flattenedOpcoMap);
+
+            await window.pywebview.api.insert_update_rm_many(reader, flattenedOpcoMap).then((res: Record<string, string>) => {
+                if(res["status"] != "success"){
+                    toastError(res["message"]);
+                }                
+            });
 
             // update the base ref.
             baseOpcoRef.current = [...opcoOptions];
