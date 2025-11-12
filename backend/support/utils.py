@@ -265,26 +265,27 @@ def generate_password(max_length: int = 20) -> str:
     
     return "".join(pw)
 
-def generate_text_template(*, 
+def generate_text(*, 
     text: str, 
     username: str = '', 
     password: str = '',
     name: str = '') -> dict[str, str]:
-    '''Replaces strings in a text template for onboarding.
+    '''Replaces strings in a text template.
 
     There are key words that can be replaced: USERNAME, PASSWORD, and NAME.
-    In order to replace them, the exact variable ***must be enclosed by brackets***. \n
+
+    In order to replace them, the exact variable ***must be enclosed by brackets***.
+
     The key words are ***case sensitive***, the function expects all of it to be uppercase only.
 
     Example:
     ```python
     password, name = password1234, John Doe
     text = "Hello [NAME], your password is [PASSWORD] and your username is [USERNAME]."
-    # replacement code here...
     print(text) # "Hello John Doe, your password is password1234 and your username is [USERNAME]."
     ```
     
-    This will replace **all** occurrences of the brackets. \n
+    This will replace **all** occurrences of the brackets.
     If no values are passed in the variables, then no replacements will occur to that key word in the text.
 
     Parameters
@@ -303,6 +304,7 @@ def generate_text_template(*,
         name: str, default ''
             Name of the client.
     '''
+    text = text.strip()
     max_chars: int = 500
 
     # this is going to get checked on the front end but it won't hurt to have this just in case.
@@ -318,4 +320,4 @@ def generate_text_template(*,
     
     return generate_response(status='success', 
         message='Successfully generated the text in the output folder.',
-        values=[['text', text]])
+        content={"text": text})
