@@ -1,7 +1,7 @@
 from core.json_reader import Reader
 from core.parser import Parser
 from core.azure_writer import AzureWriter
-from support.types import GenerateCSVProps, ManualCSVProps
+from support.types import GenerateCSVProps, ManualCSVProps, APISettings
 from base64 import b64decode
 from io import BytesIO
 from logger import Log
@@ -48,7 +48,7 @@ class API:
         # used to write the text file entry.
         self._write_text: bool = False
 
-    def initialization(self) -> dict[str, dict[str, Any]]:
+    def init_readers(self) -> dict[str, dict[str, Any]]:
         '''Returns all Reader values in one dictionary.'''
         contents: dict[str, Any] = {
             "excelColumns": self.excel.get_content(),
@@ -60,13 +60,9 @@ class API:
 
         return contents
     
-    def init_settings(self) -> dict[str, Any]:
-        '''Initializes the setting values.'''
-        content: dict[str, Any] = {
-            "write_text": self._write_text,
-        }
-
-        return content
+    def init_settings(self) -> APISettings:
+        '''Returns the setting values for initialization on the front end.'''
+        return self.settings.get_content()
 
     def generate_azure_csv(self, content: GenerateCSVProps | pd.DataFrame) -> dict[str, str]: 
         '''Generates the Azure CSV file for bulk accounts.

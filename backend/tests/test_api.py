@@ -3,8 +3,8 @@ from api.api import API
 from tests.fixtures import api, df
 from typing import Any
 from core.parser import Parser
-from support.vars import DEFAULT_HEADER_MAP
-from support.types import ManualCSVProps
+from support.vars import DEFAULT_HEADER_MAP, DEFAULT_SETTINGS_MAP 
+from support.types import ManualCSVProps, APISettings
 from core.azure_writer import AzureWriter
 from io import BytesIO
 import pandas as pd
@@ -241,7 +241,17 @@ def test_get_content(api: API):
 
     assert data == api.opco.get_content()
 
-def test_initialization(api: API):
-    content: dict[str, dict[str, Any]] = api.initialization()
+def test_init_settings(api: API):
+    content: APISettings = api.init_settings()
+
+    for key, item in content.items():
+        if key not in DEFAULT_SETTINGS_MAP:
+            raise AssertionError(f"Key {key} not found in default settings")
+        
+        if item != DEFAULT_SETTINGS_MAP[key] and key != "output_dir":
+            raise AssertionError(f"Item {item} does not match default settings value {DEFAULT_SETTINGS_MAP[key]}")
+
+def test_init_readers(api: API):
+    content: dict[str, dict[str, Any]] = api.init_readers()
 
     assert len(content) != 0
