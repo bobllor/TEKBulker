@@ -7,6 +7,7 @@ import OptionBase from "./OptionBase";
 import OpcoRow from "./OpcoRow";
 import { toastError } from "../../../toastUtils";
 import "../../../pywebview";
+import { FaCheck, FaEdit, FaTimes } from "react-icons/fa";
 
 const title: string = "Operating Companies";
 
@@ -83,7 +84,7 @@ export default function OpcoMapping(): JSX.Element{
                         <input type="submit"/>
                     </form>
                     <div className="flex">
-                        <div className="px-2 w-20 hover:bg-gray-500 flex items-center justify-center"
+                        <div className="p-1 w-20 hover:bg-gray-500 flex items-center justify-center"
                         onClick={() => {
                                 if(isEditable){
                                     updateOpcoMapping(opcoOptions, baseOpcoRef).then(status => {
@@ -95,7 +96,7 @@ export default function OpcoMapping(): JSX.Element{
                                 setIsEditable(prev => !prev);
                             }
                         }>
-                            {!isEditable ? "Edit" : "Confirm"}
+                            {!isEditable ? <FaEdit /> : <FaCheck />}
                         </div>
                         {isEditable && 
                             <div 
@@ -107,7 +108,7 @@ export default function OpcoMapping(): JSX.Element{
                                 setResetDefault(true);
                             }}
                             className="flex items-center justify-center hover:bg-gray-500 w-20">
-                                Cancel
+                                <FaTimes />
                             </div>
                         }
                     </div>

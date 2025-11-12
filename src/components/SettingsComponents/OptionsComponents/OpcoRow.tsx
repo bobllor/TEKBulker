@@ -1,10 +1,10 @@
 import React, { JSX, useRef } from "react";
 import { OpcoMap } from "../types";
-import Trash from "../../../svgs/Trash";
 import { useResetOpcoValues } from "../hooks";
 import { toastError } from "../../../toastUtils";
 import { checkRes } from "../../../utils";
 import "../../../pywebview";
+import { FaTrash } from "react-icons/fa";
 
 const DEFAULT_KEY: string = "default";
 
@@ -48,7 +48,8 @@ export default function OpcoRow(
                     defaultValue={opco.value}/>
                 </td>
                 <td 
-                className={`${isEditable && "hover:bg-gray-500"} flex justify-center items-center rounded-xl mr-1`}
+                className={`${isEditable && "hover:bg-gray-500"} flex justify-center items-center rounded-xl mr-1
+                p-1`}
                 onClick={() => { 
                     if(opco.opcoKey == DEFAULT_KEY){
                         toastError("Cannot delete default key");
@@ -63,7 +64,7 @@ export default function OpcoRow(
                         });
                     }
                 }}>
-                    <Trash stroke={isEditable ? "black" : "gray"}/>
+                    <FaTrash color={!isEditable ? "gray" : "black"}/>
                 </td>
             </tr>
         </>

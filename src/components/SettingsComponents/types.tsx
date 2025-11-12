@@ -3,6 +3,7 @@ import { JSX } from "react"
 export type SettingsButton = {
     label: string,
     url: string,
+    icon?: JSX.Element,
 }
 
 export type OptionProps = {
