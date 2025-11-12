@@ -8,6 +8,7 @@ const buttons: Array<SettingsButton> = [
     {label: "General", url: ""},
     {label: "Headers", url: "headers-mapping"},
     {label: "Operating Company", url: "opco-mapping"},
+    {label: "Text Template", url: "template"},
 ]
 
 export default function Settings({setShowSetting}: 

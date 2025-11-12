@@ -11,6 +11,7 @@ import { ToastContainer } from "react-toastify";
 import General from "./components/SettingsComponents/OptionsComponents/General";
 import HeadersMapping from "./components/SettingsComponents/OptionsComponents/HeadersMapping";
 import OpcoMapping from "./components/SettingsComponents/OptionsComponents/OpcoMapping";
+import TextForm from "./components/SettingsComponents/OptionsComponents/TextForm";
 
 const fullPageStyle = 'h-screen w-screen flex flex-col justify-center items-center overflow-hidden relative p-3'
 
@@ -45,6 +46,7 @@ export default function App() {
               <Route index element={<General />} />
               <Route path="headers-mapping" element={<HeadersMapping />} />
               <Route path="opco-mapping" element={<OpcoMapping />} />
+              <Route path="template" element={<TextForm />} />
             </Route>
           </Routes>
         }
