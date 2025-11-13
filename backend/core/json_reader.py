@@ -104,6 +104,14 @@ class Reader:
         '''Updates a key with the value.
         
         A dictionary response is generated and returned, indicating the status and message.
+
+        Parameters
+        ----------
+            key: str
+                The key being updated.
+
+            value: Any
+                Any value the key is updated to.
         '''
         if key not in self._content:
             self.logger.error(f"Update failed: key {key} does not exist")
@@ -115,6 +123,56 @@ class Reader:
         self.logger.info(f"Updated {key} with {value}")
 
         return utils.generate_response(message=f"Successfully updated key {key}", status_code=200)
+    
+    def update_search(self, key: str, value: Any, *, main_key: str = None, data: dict[str, Any] = None) -> dict[str, Any]:
+        '''Recursively updates a key with the value. This handles updating nested keys and 
+        keys of the same name that can be found in multiple parent keys, by targeting a specific parent.
+        
+        A dictionary response is generated and returned, indicating the status and message.
+
+        Parameters
+        ----------
+            key: str
+                The key being updated.
+
+            value: Any
+                Any value the key is updated to.
+
+            main_key: str, default None
+                The key that represents the nested key. This is expected to be a dictionary
+                within the dictionary. If given and not found, then the first `key` match
+                will be changed, if it exists.
+            
+            data: dict[str, Any], default None
+                The data being recusirvely searched. By default it is None, using the Reader
+                as the data being searched by default. 
+        '''
+        if data is None:
+            data = self._content
+        
+        res: dict[str, Any] = utils.generate_response(status="error", message="Failed to update key")
+        for k in data.keys():
+            if main_key is not None:
+                if main_key in data:
+                    res = self.update_search(key, value, data=data[main_key])
+
+                    return res
+            else:
+                if key in data:
+                    data[key] = value
+
+                    self.logger.info(f"Updated key {key} with value {value}")
+                    self.logger.debug(f"Key found in {data}")
+
+                    return utils.generate_response(message="Successfully updated key")
+
+            if isinstance(data[k], dict):
+                res = self.update_search(key, value, data=data[k], main_key=main_key)
+
+                if res["status"] == "success":
+                    return res
+
+        return res
     
     def insert_update_many(self, data: dict[str, Any]) -> dict[str, Any]:
         '''Inserts contents of a dictionary into the Reader. If the key aleady exists,

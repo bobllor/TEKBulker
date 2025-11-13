@@ -78,3 +78,23 @@ def test_find_invalid_key(reader: Reader):
     val: Any = reader.get("whatever")
 
     assert val is None
+
+def test_update_search(reader: Reader):
+    key_to_edit: str = "padding"
+    value: str = "yes"
+
+    # target is nest5 padding, nest4 and nest6 have a padding key.
+    reader.insert("nest1", 
+        {"nest2": {key_to_edit: None, "nest3": {key_to_edit: None, "nest4": {key_to_edit: None}}}})
+
+    res: dict[str, Any] = reader.update_search(key_to_edit, value, main_key="nest4")
+
+    if res["status"] != "success":
+        raise AssertionError(f"Failed to update key: {res}")
+
+    nest2: dict[str, Any] = reader.get("nest2")
+    nest3: dict[str, Any] = reader.get("nest3")
+    nest4: dict[str, Any] = reader.get("nest4")
+
+    assert nest2[key_to_edit] is None and nest3[key_to_edit] is None \
+        and nest4[key_to_edit] == value

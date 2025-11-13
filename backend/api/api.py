@@ -247,17 +247,30 @@ class API:
 
         return res
     
-    def set_output_dir(self, dir_: Path | str = None) -> dict[str, str]:
+    def set_output_dir(self, dir_: Path | str = None) -> dict[str, Any]:
         '''Update the output directory.'''
         from tkinter.filedialog import askdirectory
+
+        curr_dir: str = self.settings.get(DEFAULT_SETTINGS_MAP["output_dir"])
         
+        # TODO: fix logging, fix the response.
         new_dir: str = ""
         if dir_ is None:
             new_dir = askdirectory()
         else:
             new_dir = str(dir_)
+    
+        # tuple is a linux only problem with askdirectory lol
+        if new_dir == "" or isinstance(new_dir, tuple) or new_dir == curr_dir:
+            return utils.generate_response(status="error", message="No changes done")
 
-        if new_dir == "":
-            return
+        res: dict[str, Any] = self.settings.update("output_dir", new_dir)
+        res["content"] = new_dir
 
-        self.settings.update("output_dir", new_dir)
+        return res
+    
+    def set_text_generate_state(self, state: bool) -> dict[str, Any]:
+        '''Sets the CSV generation to create the text files.'''
+        res: dict[str, Any] = self.settings.update("enabled", state)
+
+        return res
