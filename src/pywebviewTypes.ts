@@ -1,5 +1,5 @@
 /* 
-These will need to be updated manualyl whenever types.py is updated in the backend.
+These will need to be updated manually whenever types.py is updated in the backend.
 The related types found in both files must be 1:1.
 */
 
@@ -17,7 +17,11 @@ export type TemplateMap = {
 }
 
 export type Formatting = {
-    format_type: "period" | "no space",
-    format_case: "title" | "upper" | "lower",
-    format_style: "first last" | "f last" | "first l",
+    format_type: FormatType,
+    format_case: FormatCase,
+    format_style: FormatStyle,
 }
+
+export type FormatType = "period" | "no space";
+export type FormatCase = "title" | "upper" | "lower";
+export type FormatStyle = "first last" | "f last" | "first l";
