@@ -1,17 +1,23 @@
-import { JSX } from "react";
+import React, { JSX } from "react";
 import { useContext, createContext, useState } from "react";
-import { UploadedFilesProps } from "../components/FileComponents/utils/types";
+import { APISettings } from "../pywebviewTypes";
+import { useInitSettings } from "./hooks";
 
 const SettingsContext = createContext<SettingsData>({
-    uploadedFiles: [],
-    setUploadedFiles: () => {}
+    apiSettings: {} as APISettings,
+    setApiSettings: () => {},
 });
 
 export const useSettingsContext = () => useContext(SettingsContext);
 
 export function SettingsProvider({ children }: {children: JSX.Element}): JSX.Element {
-    const data: SettingsData = {
+    const [apiSettings, setApiSettings] = useState<APISettings>({} as APISettings);
 
+    useInitSettings(setApiSettings);
+
+    const data: SettingsData = {
+        apiSettings,
+        setApiSettings,
     }
     
     return (
@@ -23,6 +29,7 @@ export function SettingsProvider({ children }: {children: JSX.Element}): JSX.Ele
     )
 }
 
-type SettingsData = {
-
+export type SettingsData = {
+    apiSettings: APISettings,
+    setApiSettings: React.Dispatch<React.SetStateAction<APISettings>>,
 }
