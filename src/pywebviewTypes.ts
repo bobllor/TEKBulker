@@ -6,6 +6,7 @@ The related types found in both files must be 1:1.
 // obtained from types in the backend
 export type APISettings = {
     output_dir: string,
+    flatten_csv: boolean,
     template: TemplateMap,
     format: Formatting,
 }

@@ -39,5 +39,6 @@ class Formatting(TypedDict):
 # NOTE: this will need to be updated in types.ts as well.
 class APISettings(TypedDict):
     output_dir: str
+    flatten_csv: bool
     template: TemplateMap
     format: Formatting
