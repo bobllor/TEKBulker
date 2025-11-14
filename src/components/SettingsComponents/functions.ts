@@ -109,3 +109,8 @@ export async function setTextGenerationState(state: boolean, setApiSettings: Set
         }
     })
 }
+
+export async function updateFormattingKey(
+    key: string, value: any, setApiSettings: SettingsData["setApiSettings"]): Promise<void>{
+        console.log(key, value);
+}

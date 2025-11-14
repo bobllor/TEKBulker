@@ -5,12 +5,29 @@ import SliderButton from "../../ui/SliderButton";
 import Button from "../../ui/Button";
 import "../../../pywebview";
 import { SettingsData, useSettingsContext } from "../../../context/SettingsContext";
-import { setOutputDir, setTextGenerationState } from "../functions";
+import { setOutputDir, setTextGenerationState, updateFormattingKey } from "../functions";
+import DropDown, { DropDownObject } from "../../ui/DropDown";
+import { Formatting, FormatType } from "../../../pywebviewTypes";
 
 const title: string = "General";
 
 export default function General(): JSX.Element{
     const {apiSettings, setApiSettings} = useSettingsContext();
+    const formatTypeArray: Array<DropDownObject> = [
+        {value: "period", text: "Period"},
+        {value: "no space", text: "No Space"},
+    ];
+    const formatStyleArray: Array<DropDownObject> = [
+        {value: "first last", text: "First Last"},
+        {value: "f last", text: "F. Last"},
+        {value: "first l", text: "First L."},
+    ];
+    const formatCaseArray: Array<DropDownObject> = [
+        {value: "lower", text: "Lowercase"},
+        {value: "upper", text: "Uppercase"},
+        {value: "title", text: "Title Case"},
+    ];
+
     const options: Array<OptionProps> = [
         {
             label: "Output Folder", 
@@ -19,9 +36,21 @@ export default function General(): JSX.Element{
             optElement: OutputFolder(apiSettings.output_dir),
         },
         {label: "Flatten CSV", element: <></>},
-        {label: "Format Type", element: <></> },
-        {label: "Format Style", element: <></> },
-        {label: "Format Case", element: <></> },
+        {
+            label: "Format Type", 
+            element: <DropDown obj={formatTypeArray} 
+                objId="format_type" defaultValue={apiSettings.format.format_type} 
+                func={(key: string, value: any) => {updateFormattingKey(key, value, setApiSettings)}} />
+        },
+        {
+            label: "Format Style", element: <DropDown obj={formatStyleArray} 
+                objId="format_style" defaultValue={apiSettings.format.format_style} />
+        },
+        {
+            label: "Format Case", 
+            element: <DropDown obj={formatCaseArray} 
+                objId="format_case" defaultValue={apiSettings.format.format_case} />
+        },
         {label: "Generate Text", element: GenerateTextSlider(apiSettings.template.enabled, setApiSettings)},
     ]
 
