@@ -9,7 +9,7 @@ export type SettingsButton = {
 export type OptionProps = {
     label: string, // the option to be displayed
     element: JSX.Element, // the element to display after the label. this should be related to the backend call
-    optLabel?: JSX.Element, // an optional string that is displayed right next to the label.
+    optElement?: JSX.Element, // an optional element that is displayed right next to the label.
     justify?: "center" | "between" | "start" | "end",
 }
 

@@ -15,7 +15,10 @@ export default function OptionBase({options = [], title}: OptionBaseProps): JSX.
                 <div 
                 key={i}
                 className={getClassName(opt.justify)}>
-                    {opt.label}
+                    <div className="flex flex-col">
+                        {opt.label}
+                        {opt.optElement && opt.optElement}
+                    </div>
                     {opt.element}
                 </div>
             ))}
@@ -30,7 +33,7 @@ export default function OptionBase({options = [], title}: OptionBaseProps): JSX.
  * @returns className
  */
 function getClassName(justify: OptionProps["justify"] | undefined): string{
-    let optionClassName: string = "flex items-center border-b-1 m-2 p-2 text-sm gap-3";
+    let optionClassName: string = "flex items-center border-b-1 m-2 p-4 text-sm gap-3";
 
     switch (justify) {
         case "center":

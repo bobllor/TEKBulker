@@ -22,7 +22,7 @@ export default function Button({opts, selectedSetting, setSelectedSetting}: Butt
             <div className="flex items-center">
                 {opts.icon != null && opts.icon}
             </div>
-            <div className="flex items-center text-xl">
+            <div className="flex items-center">
                 {opts.label}
             </div>
         </div>

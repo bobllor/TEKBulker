@@ -85,6 +85,7 @@ export default function OpcoMapping(): JSX.Element{
                     </form>
                     <div className="flex">
                         <div className="p-1 w-20 hover:bg-gray-500 flex items-center justify-center"
+                        title={!isEditable ? "Edit table" : "Confirm changes"}
                         onClick={() => {
                                 if(isEditable){
                                     updateOpcoMapping(opcoOptions, baseOpcoRef).then(status => {
@@ -96,7 +97,7 @@ export default function OpcoMapping(): JSX.Element{
                                 setIsEditable(prev => !prev);
                             }
                         }>
-                            {!isEditable ? <FaEdit /> : <FaCheck />}
+                            {!isEditable ? <FaEdit color="blue" /> : <FaCheck color="green" />}
                         </div>
                         {isEditable && 
                             <div 
@@ -107,8 +108,9 @@ export default function OpcoMapping(): JSX.Element{
                                 setIsEditable(prev => !prev);
                                 setResetDefault(true);
                             }}
-                            className="flex items-center justify-center hover:bg-gray-500 w-20">
-                                <FaTimes />
+                            className="flex items-center justify-center hover:bg-gray-500 w-20"
+                            title="Cancel">
+                                <FaTimes color="red" />
                             </div>
                         }
                     </div>

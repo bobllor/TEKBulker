@@ -3,12 +3,12 @@ import { ReaderType, OpcoMap } from "./types";
 import { toastError } from "../../toastUtils";
 import React from "react";
 import "../../pywebview";
+import { SettingsData } from "../../context/SettingsContext";
 
 /**
  * Handles text submission to update a key for the settings in the backend.
  * @param event - The React form event.
  * @param readerType - The type to obtain the correct value from the target Reader in the backend.
- * @returns {Promise<boolean>}
  */
 export async function onSubmitText(event: React.FormEvent<HTMLFormElement>, readerType: ReaderType): Promise<boolean>{
     event.preventDefault();
@@ -76,4 +76,36 @@ export async function addOpcoEntry(
         });
 
         return true;
+}
+
+/**
+ * Sets the output directory of a chosen directory
+ * @param setApiSettings State setter function for the API settings of the program
+ */
+export async function setOutputDir(setApiSettings: SettingsData["setApiSettings"]): Promise<void>{
+    await window.pywebview.api.set_output_dir().then((res: Record<string, string>) => {
+        if(res["status"] == "success"){
+            setApiSettings(prev => ({...prev, output_dir: res["content"]}));
+        }
+    });
+}
+
+/**
+ * Enables/disables the text generation when generating the CSV file
+ * @param state The given state to set the setting
+ * @param setApiSettings State setter function for the API settings of the program
+ */
+export async function setTextGenerationState(state: boolean, setApiSettings: SettingsData["setApiSettings"]): Promise<void>{
+    // these values must match the types shown in both the back end and front end types (and the config).
+    const key: string = "enabled";
+    const parentKey: string = "template";
+
+    // state must be inverted, as that value is getting passed it will not update properly.
+    // for example: it starts false, but will pass in false. it is inverted to pass true to update.
+    await window.pywebview.api.set_update_setting(key, !state, parentKey).then((res: Record<string, string>) => {
+        // errors dont need to be handled. if there is one it has bigger issues.
+        if(res["status"] == "success"){
+            setApiSettings(prev => ({...prev, template: {...prev.template, enabled: !prev.template.enabled}}));
+        }
+    })
 }
