@@ -1,7 +1,7 @@
 from core.json_reader import Reader
 from core.parser import Parser
 from core.azure_writer import AzureWriter
-from support.types import GenerateCSVProps, ManualCSVProps, APISettings
+from support.types import GenerateCSVProps, ManualCSVProps, APISettings, Formatting
 from base64 import b64decode
 from io import BytesIO
 from logger import Log
@@ -44,9 +44,6 @@ class API:
             "opco": self.opco,
             "excel": self.excel,
         }
-
-        # used to write the text file entry.
-        self._write_text: bool = False
 
     def init_readers(self) -> dict[str, dict[str, Any]]:
         '''Returns all Reader values in one dictionary.'''
@@ -107,7 +104,7 @@ class API:
             return utils.generate_response(status='error', message=f'Invalid file \
                 {file_name} uploaded.')
 
-        # maybe readd this back? for now i want to keep the full name.
+        # maybe read this back? for now i want to keep the full name.
         #parser.apply(default_excel_columns["name"], func=utils.format_name)
         parser.apply(default_excel_columns["opco"], func=lambda x: x.lower())
         excel_names: list[str] = parser.get_rows(default_excel_columns["name"])
@@ -121,8 +118,14 @@ class API:
 
         # the mapping of the operating company to their domain name.
         opco_mappings: dict[str, str] = self.opco.get_content()
-        # TODO: add formatting style/case/type
-        usernames: list[str] = utils.generate_usernames(dupe_names, opcos, opco_mappings)
+
+        formatters: Formatting = self.settings.get("format")
+        usernames: list[str] = utils.generate_usernames(
+            dupe_names, opcos, opco_mappings,
+            format_type=formatters["format_type"],
+            format_case=formatters["format_case"], 
+            format_style=formatters["format_style"],
+        )
 
         writer: AzureWriter = AzureWriter(logger=self.logger)
 
@@ -251,7 +254,7 @@ class API:
         '''Update the output directory.'''
         from tkinter.filedialog import askdirectory
 
-        curr_dir: str = self.settings.get(DEFAULT_SETTINGS_MAP["output_dir"])
+        curr_dir: str = self.settings.get("output_dir")
         
         # TODO: fix logging, fix the response.
         new_dir: str = ""
@@ -259,7 +262,8 @@ class API:
             new_dir = askdirectory()
         else:
             new_dir = str(dir_)
-    
+        
+        self.logger.info(f"Given directory: {new_dir}")
         # tuple is a linux only problem with askdirectory lol
         if new_dir == "" or isinstance(new_dir, tuple) or new_dir == curr_dir:
             return utils.generate_response(status="error", message="No changes done")
@@ -269,8 +273,25 @@ class API:
 
         return res
     
-    def set_text_generate_state(self, state: bool) -> dict[str, Any]:
-        '''Sets the CSV generation to create the text files.'''
-        res: dict[str, Any] = self.settings.update("enabled", state)
+    def set_update_setting(self, key: str, value: Any, parent_key: str = None) -> dict[str, Any]:
+        '''Updates a setting key.
+        
+        Parameters
+        ----------
+            key: str
+                The target key being updated.
+            
+            value: Any
+                Any value for the key replacement.
+            
+            parent_key: str, default None
+                The parent key of the given key argument. This is only necessary if multiple keys
+                of the same name exists in different nest levels. By default it is None.
+        '''
+        self.logger.info("Settings update requested")
+        res: dict[str, Any] = self.settings.update_search(key, value, main_key=parent_key)
+
+        if res["status"] == "success":
+            self.settings.write(self.settings.get_content())
 
         return res
