@@ -2,7 +2,7 @@ import { JSX, useState } from "react";
 import { tableHeaders } from "./manualUtils/vars";
 import { ManualData, SelectStateProps } from "./manualUtils/types";
 import TableData from "./TableData";
-import Trash from "../../svgs/Trash";
+import { FaTrash } from "react-icons/fa";
 
 export default function ManualTable({manualData, setManualData, select}: 
     ManualTableProps): JSX.Element{
@@ -47,8 +47,8 @@ export default function ManualTable({manualData, setManualData, select}:
                                 <span 
                                 onClick={() => setManualData(prev => prev.filter((_, id) => {return id != i;}))
                                 }
-                                className="flex justify-center items-center hover:bg-gray-400 rounded-xl py-1">  
-                                    <Trash />
+                                className="flex justify-center items-center hover:bg-gray-400 rounded-xl py-2 px-1">  
+                                    <FaTrash />
                                 </span>
                             </td>
                         </tr>
