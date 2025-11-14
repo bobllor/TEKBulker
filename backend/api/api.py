@@ -143,7 +143,6 @@ class API:
         return utils.generate_response(
             status='success', 
             message=f'Generated CSV file',
-            status_code=200
         )
     
     def generate_manual_csv(self, content: list[ManualCSVProps]) -> dict[str, str]:
@@ -176,8 +175,15 @@ class API:
         self.logger.debug(f"Opcos: {opcos}") 
         dupe_names: list[str] = utils.check_duplicate_names(names)
 
-        # TODO: add formatting style/case/type
-        usernames: list[str] = utils.generate_usernames(dupe_names, opcos, opco_mappings)
+        formatters: Formatting = self.settings.get("format")
+        usernames: list[str] = utils.generate_usernames(
+            dupe_names, 
+            opcos, 
+            opco_mappings,
+            format_type=formatters["format_type"],
+            format_case=formatters["format_case"],
+            format_style=formatters["format_style"],
+        )
         passwords: list[str] = [utils.generate_password() for _ in range(len(names))]
 
         writer: AzureWriter = AzureWriter(logger=self.logger)
@@ -193,7 +199,7 @@ class API:
 
         self.logger.info(f"Manual generated {csv_name} at {self.get_reader_value('settings', 'output_dir')}")
 
-        return utils.generate_response(status='success', message='', status_code=200)
+        return utils.generate_response(status='success', message='Generated CSV file')
     
     def get_reader_value(self, reader: Literal["settings", "opco", "excel"], key: str) -> Any:
         '''Gets the values from any Reader keys. If the key does not exist,
@@ -263,11 +269,11 @@ class API:
         else:
             new_dir = str(dir_)
         
-        self.logger.info(f"Given directory: {new_dir}")
         # tuple is a linux only problem with askdirectory lol
         if new_dir == "" or isinstance(new_dir, tuple) or new_dir == curr_dir:
             return utils.generate_response(status="error", message="No changes done")
 
+        self.logger.info(f"New directory: {new_dir}")
         res: dict[str, Any] = self.settings.update("output_dir", new_dir)
         res["content"] = new_dir
 

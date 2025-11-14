@@ -159,10 +159,11 @@ class Reader:
                     return res
             else:
                 if key in data:
+                    self.logger.debug(f"Key found in {data}")
+
                     data[key] = value
 
                     self.logger.info(f"Updated key {key} with value {value}")
-                    self.logger.debug(f"Key found in {data}")
 
                     return utils.generate_response(message="Successfully updated key")
 
