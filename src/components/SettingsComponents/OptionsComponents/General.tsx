@@ -44,12 +44,14 @@ export default function General(): JSX.Element{
         },
         {
             label: "Format Style", element: <DropDown obj={formatStyleArray} 
-                objId="format_style" defaultValue={apiSettings.format.format_style} />
+                objId="format_style" defaultValue={apiSettings.format.format_style} 
+                func={(key: string, value: any) => {updateFormattingKey(key, value, setApiSettings)}} />
         },
         {
             label: "Format Case", 
             element: <DropDown obj={formatCaseArray} 
-                objId="format_case" defaultValue={apiSettings.format.format_case} />
+                objId="format_case" defaultValue={apiSettings.format.format_case} 
+                func={(key: string, value: any) => {updateFormattingKey(key, value, setApiSettings)}} />
         },
         {label: "Generate Text", element: GenerateTextSlider(apiSettings.template.enabled, setApiSettings)},
     ]

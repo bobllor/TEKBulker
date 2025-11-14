@@ -100,7 +100,7 @@ export async function setTextGenerationState(state: boolean, setApiSettings: Set
     const key: string = "enabled";
     const parentKey: string = "template";
 
-    // state must be inverted, as that value is getting passed it will not update properly.
+    // state must be inverted, as the value will not update properly.
     // for example: it starts false, but will pass in false. it is inverted to pass true to update.
     await window.pywebview.api.set_update_setting(key, !state, parentKey).then((res: Record<string, string>) => {
         // errors dont need to be handled. if there is one it has bigger issues.
@@ -110,7 +110,19 @@ export async function setTextGenerationState(state: boolean, setApiSettings: Set
     })
 }
 
+/**
+ * Updates the Formatting map of the settings configuration
+ * @param key The target key to be changed
+ * @param value The new value of the target key
+ * @param setApiSettings The state setter function for updating the settings state
+ */
 export async function updateFormattingKey(
     key: string, value: any, setApiSettings: SettingsData["setApiSettings"]): Promise<void>{
-        console.log(key, value);
+        await window.pywebview.api.set_update_setting(key, value, "format").then((res: Record<string, string>) => {
+            if(res["status"] == "success"){
+                setApiSettings(prev => (
+                    {...prev, template: {...prev.template, key: value}}
+                ))
+            }
+        });
 }
