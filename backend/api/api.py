@@ -215,7 +215,7 @@ class API:
     def get_reader_content(self, reader: Literal["settings", "opco", "excel"]) -> dict[str, Any]:
         '''Gets the data of the Reader.'''
         return self.readers[reader].get_content()
-    
+
     def update_key(self, reader_type: Literal["settings", "opco", "excel"], key: str, value: Any) -> dict[str, Any]:
         '''Updates a key from the given value.'''
         reader: Reader = self.readers[reader_type]
@@ -262,7 +262,6 @@ class API:
 
         curr_dir: str = self.settings.get("output_dir")
         
-        # TODO: fix logging, fix the response.
         new_dir: str = ""
         if dir_ is None:
             new_dir = askdirectory()
@@ -279,7 +278,7 @@ class API:
 
         return res
     
-    def set_update_setting(self, key: str, value: Any, parent_key: str = None) -> dict[str, Any]:
+    def update_setting(self, key: str, value: Any, parent_key: str = None) -> dict[str, Any]:
         '''Updates a setting key.
         
         Parameters

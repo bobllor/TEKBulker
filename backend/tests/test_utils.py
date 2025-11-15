@@ -61,3 +61,8 @@ def test_generate_text_args():
     exp_test: str = text.replace("[USERNAME]", username).replace("[PASSWORD]", password)
 
     assert res["content"]["text"] == exp_test
+
+def test_invalid_name():
+    name: str = utils.format_name(" ")
+
+    assert name == "Invalid Name"

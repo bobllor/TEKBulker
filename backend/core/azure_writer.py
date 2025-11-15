@@ -13,7 +13,7 @@ class AzureWriter:
         '''Azure CSV writing class, an empty AzureHeaders is initialized
         and must be setup prior to running AzureWriter.write().'''
         self._headers_data: dict[HeadersKey, list[str]] = {
-            key: [] for key in AZURE_HEADERS
+            val: [] for val in AZURE_HEADERS.values()
         }
         
         self.logger: Log = logger or Log()
@@ -22,7 +22,7 @@ class AzureWriter:
         '''Sets the full names for the data.'''
         self.logger.info(f"Setting full names")
         self.logger.debug(f"Full names data: {names}")
-        self._headers_data["name"] = names
+        self._headers_data[AZURE_HEADERS["name"]] = names
     
     def set_usernames(self, usernames: list[str]):
         '''Sets the usernames of the users.
@@ -34,12 +34,12 @@ class AzureWriter:
         '''
         self.logger.info(f"Setting usernames")
         self.logger.debug(f"Username data: {usernames}")
-        self._headers_data["username"] = usernames
+        self._headers_data[AZURE_HEADERS["username"]] = usernames
     
     def set_passwords(self, passwords: list[str]) -> None:
         '''Sets the passwords of the data.'''
         self.logger.info(f"Setting passwords")
-        self._headers_data["password"] = passwords
+        self._headers_data[AZURE_HEADERS["password"]] = passwords
     
     def set_block_sign_in(self, capacity: int, blockages: list[str] = []) -> None:
         '''Sets the block sign in for the users.
@@ -61,7 +61,7 @@ class AzureWriter:
                 blockages.append("No")
             
         self.logger.info(f"Setting block sign in")
-        self._headers_data["block_sign_in"] = blockages
+        self._headers_data[AZURE_HEADERS["block_sign_in"]] = blockages
     
     def set_names(self, names: list[str]) -> None:
         '''Sets the first and last names of the data. If more than two names are given,
@@ -80,8 +80,8 @@ class AzureWriter:
         
         self.logger.info(f"Setting first and last names")
         self.logger.debug(f"Names data: {names}")
-        self._headers_data["first_name"] = first_names
-        self._headers_data["last_name"] = last_names
+        self._headers_data[AZURE_HEADERS["first_name"]] = first_names
+        self._headers_data[AZURE_HEADERS["last_name"]] = last_names
     
     def write(self, out: Path | str) -> None:
         '''Write to a CSV file.
@@ -108,3 +108,7 @@ class AzureWriter:
     def get_data(self, key: HeadersKey) -> list[str]:
         '''Gets the specified data.'''
         return self._headers_data[key]
+    
+    def get_keys(self) -> list[str]:
+        '''Gets the keys for the data.'''
+        return [key for key in self._headers_data]

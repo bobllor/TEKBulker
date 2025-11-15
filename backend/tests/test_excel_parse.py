@@ -131,7 +131,7 @@ def test_write_new_csv(tmp_path: Path):
     
     df: pd.DataFrame = pd.read_csv(csv_bytes)
 
-    for key in HeadersKey.__args__:
+    for key in writer.get_keys():
         df_data: list[Any] = df[key].to_list()
         base_data: list[str] = writer.get_data(key)
 

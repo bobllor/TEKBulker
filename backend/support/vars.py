@@ -31,6 +31,7 @@ DEFAULT_OPCO_MAP: OpcoMap = {
 
 DEFAULT_SETTINGS_MAP: APISettings = {
     "output_dir": str(Path().home()),
+    "flatten_csv": False,
     "template": {
         "enabled": False,
         "text": "",
@@ -40,5 +41,5 @@ DEFAULT_SETTINGS_MAP: APISettings = {
         "format_case": "title",
         "format_style": "first last",
         "format_type": "period",
-    }
+    },
 }

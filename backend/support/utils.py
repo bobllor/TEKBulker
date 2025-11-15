@@ -36,9 +36,8 @@ def format_name(name: str, *, keep_full: bool = False) -> str:
         if is_valid and not has_bad_words and len(name) > 1:
             new_name.append(name.title())
 
-    # TODO: wtf... lets fix this later
-    if not new_name:
-        raise ValueError('An invalid name was entered.')
+    if len(new_name) < 1:
+        return "Invalid Name"
 
     f_name: str = new_name[0]
     if keep_full:
