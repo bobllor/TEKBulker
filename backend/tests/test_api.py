@@ -320,18 +320,3 @@ def test_get_content(api: API):
     data: dict[str, Any] = api.get_reader_content("opco")
 
     assert data == api.opco.get_content()
-
-def test_init_settings(api: API):
-    content: APISettings = api.init_settings()
-
-    for key, item in content.items():
-        if key not in DEFAULT_SETTINGS_MAP:
-            raise AssertionError(f"Key {key} not found in default settings")
-        
-        if item != DEFAULT_SETTINGS_MAP[key] and key != "output_dir":
-            raise AssertionError(f"Item {item} does not match default settings value {DEFAULT_SETTINGS_MAP[key]}")
-
-def test_init_readers(api: API):
-    content: dict[str, dict[str, Any]] = api.init_readers()
-
-    assert len(content) != 0

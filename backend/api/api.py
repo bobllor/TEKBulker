@@ -45,22 +45,6 @@ class API:
             "excel": self.excel,
         }
 
-    def init_readers(self) -> dict[str, dict[str, Any]]:
-        '''Returns all Reader values in one dictionary.'''
-        contents: dict[str, Any] = {
-            "excelColumns": self.excel.get_content(),
-            "settings": self.settings.get_content(),
-            "opco": self.opco.get_content(),
-        }
-
-        self.logger.debug(f"Data {contents} initializing")
-
-        return contents
-    
-    def init_settings(self) -> APISettings:
-        '''Returns the setting values for initialization on the front end.'''
-        return self.settings.get_content()
-
     def generate_azure_csv(self, content: GenerateCSVProps | pd.DataFrame) -> dict[str, str]: 
         '''Generates the Azure CSV file for bulk accounts.
         
