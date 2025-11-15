@@ -1,11 +1,8 @@
 import React, { useEffect } from "react"
 import "../pywebview";
 import { APISettings } from "../pywebviewTypes";
-
-async function getSettings(): Promise<APISettings>{
-    const data: APISettings = await window.pywebview.api.init_settings();
-    return data;
-}
+import { HeaderData } from "./SettingsContext";
+import { getReaderContent } from "../pywebviewFunctions";
 
 /**
  * Hook to initialize the settings context.
@@ -13,8 +10,16 @@ async function getSettings(): Promise<APISettings>{
  */
 export function useInitSettings(setApiSettings: SettingsProps["setApiSettings"]){
     useEffect(() => {
-        getSettings().then((res) => {
-            setApiSettings(res);
+        getReaderContent("settings").then((res) => {
+            setApiSettings(res as APISettings);
+        })
+    }, [])
+}
+
+export function useInitHeaders(setHeaders: Headers["setHeaders"]){
+    useEffect(() => {
+        getReaderContent("excel").then((res) => {
+            setHeaders(res as HeaderData);
         })
     }, [])
 }
@@ -23,4 +28,8 @@ type SettingsProps = {
     setApiSettings: React.Dispatch<React.SetStateAction<APISettings>>,
     updateSettings: boolean,
     setUpdateSettings: React.Dispatch<React.SetStateAction<boolean>>,
+}
+
+type Headers = {
+    setHeaders: React.Dispatch<React.SetStateAction<HeaderData>>,
 }

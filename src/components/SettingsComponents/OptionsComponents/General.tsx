@@ -64,11 +64,13 @@ export default function General(): JSX.Element{
 }
 
 function OutputFolder(outputDir: string): JSX.Element{
+    const maxLength: number = 20;
+    const label: string = "Value: ";
     return (
         <>
             <span
-            title={outputDir.length >= 20 ? outputDir : ""}>
-                {outputDir.length < 20 ? outputDir : outputDir.slice(0, 20) + "..."}
+            title={outputDir.length >= maxLength ? outputDir : ""}>
+                {outputDir.length < maxLength ? label + outputDir : label + outputDir.slice(0, 20) + "..."}
             </span>        
         </>
     )

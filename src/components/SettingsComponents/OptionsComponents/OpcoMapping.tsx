@@ -9,7 +9,7 @@ import { toastError } from "../../../toastUtils";
 import "../../../pywebview";
 import { FaCheck, FaEdit, FaTimes } from "react-icons/fa";
 
-const title: string = "Operating Companies";
+const title: string = "Operating Company";
 
 export default function OpcoMapping(): JSX.Element{
     const [opcoOptions, setOpcoOptions] = useState<Array<OpcoMap>>([]);

@@ -2,6 +2,7 @@ import { JSX } from "react";
 import { OptionProps, ReaderType } from "../types";
 import OptionBase from "./OptionBase";
 import { onSubmitText } from "../functions";
+import { useSettingsContext } from "../../../context/SettingsContext";
 
 const TextComponent = ({name, readerType}: {name: string, readerType: ReaderType}) => (
     <form
@@ -13,14 +14,37 @@ const TextComponent = ({name, readerType}: {name: string, readerType: ReaderType
     </form>
 )
 
+const CurrentValue = (currVal: string) => {
+    const maxLength: number = 20;
+    const label: string = "Value: "
+
+    return (
+        <span
+        title={currVal.length > maxLength ? currVal : ""}>
+            {currVal.length < maxLength ? label + currVal : label + currVal.slice(0,9) + "..."}
+        </span>
+    )
+}
+
 const title: string = "Headers";
 const readerType: ReaderType = "excel";
-const options: Array<OptionProps> = [
-    {label: "Name", element: <TextComponent name={"name"} readerType={readerType} />},
-    {label: "Operating Company", element: <TextComponent name={"opco"} readerType={readerType} />},
-]
 
-export default function HeadersMapping(): JSX.Element{
+export default function HeadersMapping(): JSX.Element{ 
+    const {headers} = useSettingsContext();
+
+    const options: Array<OptionProps> = [
+        {
+            label: "Name", 
+            element: <TextComponent name={"name"} readerType={readerType} />, 
+            optElement: CurrentValue(headers.name),
+        },
+        {
+            label: "Operating Company", 
+            element: <TextComponent name={"opco"} readerType={readerType} />,
+            optElement: CurrentValue(headers.opco),
+        },
+    ]
+
     return (
         <>
             <OptionBase options={options} title={title} />
